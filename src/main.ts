@@ -8,11 +8,16 @@ import localeData from "dayjs/plugin/localeData";
 import km from "dayjs/locale/km";
 import updateLocale from "dayjs/plugin/updateLocale";
 import duration from "dayjs/plugin/duration";
+import tz from "dayjs/plugin/timezone";
+import badMutable from "dayjs/plugin/badMutable";
 
 dayjs.extend(updateLocale);
 dayjs.extend(localeData);
 dayjs.extend(duration);
+dayjs.extend(tz);
 dayjs.locale(km);
+// set default zone to Asia/Phnom_Penh
+dayjs.tz.setDefault("Asia/Phnom_Penh");
 
 dayjs.updateLocale("km", {
   // check time unit
@@ -28,6 +33,8 @@ dayjs.updateLocale("km", {
 const { lunarMonths, solarMonths, moonStatus, khNewYear } = constant;
 
 export default function dayjskh(date?: ConfigType) {
+  const globalDate = date ? dayjs(date) : dayjs();
+
   const { floor } = Math;
   // Aharkun: អាហារគុណ ឬ ហារគុណ
   // Aharkun is used for Avoman and Bodithey calculation below. Given adYear as a target year in Buddhist Era
@@ -170,14 +177,60 @@ export default function dayjskh(date?: ConfigType) {
     }
   };
 
+  // Next month of Khmer month
+  const nextMonthOf = (khmerMonth: number, beYear: number): number => {
+    switch (khmerMonth) {
+      case lunarMonths["មិគសិរ"]:
+        return lunarMonths["បុស្ស"];
+      case lunarMonths["បុស្ស"]:
+        return lunarMonths["មាឃ"];
+      case lunarMonths["មាឃ"]:
+        return lunarMonths["ផល្គុន"];
+      case lunarMonths["ផល្គុន"]:
+        return lunarMonths["ចេត្រ"];
+      case lunarMonths["ចេត្រ"]:
+        return lunarMonths["ពិសាខ"];
+      case lunarMonths["ពិសាខ"]:
+        return lunarMonths["ជេស្ឋ"];
+      case lunarMonths["ជេស្ឋ"]: {
+        if (isKhmerLeapMonth(beYear)) {
+          return lunarMonths["បឋមាសាឍ"];
+        } else {
+          return lunarMonths["អាសាឍ"];
+        }
+      }
+      case lunarMonths["អាសាឍ"]:
+        return lunarMonths["ស្រាពណ៍"];
+      case lunarMonths["ស្រាពណ៍"]:
+        return lunarMonths["ភទ្របទ"];
+      case lunarMonths["ភទ្របទ"]:
+        return lunarMonths["អស្សុជ"];
+      case lunarMonths["អស្សុជ"]:
+        return lunarMonths["កក្ដិក"];
+      case lunarMonths["កក្ដិក"]:
+        return lunarMonths["មិគសិរ"];
+      case lunarMonths["បឋមាសាឍ"]:
+        return lunarMonths["ទុតិយាសាឍ"];
+      case lunarMonths["ទុតិយាសាឍ"]:
+        return lunarMonths["ស្រាពណ៍"];
+      default:
+        throw Error("Plugin is facing wrong calculation (Invalid month)");
+    }
+  };
+
   // calculate date from dayjs to Khmer date
   const getLunarDate = (date: dayjs.Dayjs): any => {
+    // Add badMutable plugin to change original date
+    dayjs.extend(badMutable);
+
     // Epoch Date: January 1, 1900
     let epochDayjs = dayjs("1900-01-01");
     let khmerMonth = lunarMonths["បុស្ស"];
     let khmerDay = 0; // 0 - 29 ១កើត ... ១៥កើត ១រោច ...១៤រោច (១៥រោច)
 
     let differentFromEpoch = date.diff(epochDayjs);
+
+    // fixed dayjs not change original date
 
     // Find nearest year epoch
     if (differentFromEpoch > 0) {
@@ -193,15 +246,16 @@ export default function dayjskh(date?: ConfigType) {
         );
       }
     } else {
-      while (
-        dayjs.duration(epochDayjs.diff(date), "milliseconds").asDays() >=
-        getNumDayOfKhmerYear(getMaybeBEYear(epochDayjs))
-      ) {
+      do {
         epochDayjs.subtract(
-          getNumDayOfKhmerYear(getMaybeBEYear(epochDayjs)),
+          getNumDayOfKhmerYear(
+            getMaybeBEYear(epochDayjs.clone().subtract(1, "year")),
+          ),
           "day",
         );
-      }
+      } while (
+        dayjs.duration(date.diff(epochDayjs), "milliseconds").asDays() > 0
+      );
     }
 
     // Move epoch month
@@ -243,8 +297,6 @@ export default function dayjskh(date?: ConfigType) {
     };
   };
 
-  console.log(getLunarDate(dayjs("2021-01-01")));
-
   // រកថ្ងៃវិសាខបូជា
   // ថ្ងៃដាច់ឆ្នាំពុទ្ធសករាជ
   const getVisakBochea = (
@@ -260,47 +312,35 @@ export default function dayjskh(date?: ConfigType) {
     }
   };
 
-  // Next month of Khmer month
-  const nextMonthOf = (khmerMonth: number, beYear: number): number => {
-    switch (khmerMonth) {
-      case lunarMonths["មិគសិរ"]:
-        return lunarMonths["បុស្ស"];
-      case lunarMonths["បុស្ស"]:
-        return lunarMonths["មាឃ"];
-      case lunarMonths["មាឃ"]:
-        return lunarMonths["ផល្គុន"];
-      case lunarMonths["ផល្គុន"]:
-        return lunarMonths["ចេត្រ"];
-      case lunarMonths["ចេត្រ"]:
-        return lunarMonths["ពិសាខ"];
-      case lunarMonths["ពិសាខ"]:
-        return lunarMonths["ជេស្ឋ"];
-      case lunarMonths["ជេស្ឋ"]: {
-        if (isKhmerLeapMonth(beYear)) {
-          return lunarMonths["បឋមាសាឍ"];
-        } else {
-          return lunarMonths["អាសាឍ"];
-        }
-      }
-      case lunarMonths["អាសាឍ"]:
-        return lunarMonths["ស្រាពណ៍"];
-      case lunarMonths["ស្រាពណ៍"]:
-        return lunarMonths["ភទ្របទ"];
-      case lunarMonths["ភទ្របទ"]:
-        return lunarMonths["អស្សុជ"];
-      case lunarMonths["អស្សុជ"]:
-        return lunarMonths["កក្ដិក"];
-      case lunarMonths["កក្ដិក"]:
-        return lunarMonths["មិគសិរ"];
-      case lunarMonths["បឋមាសាឍ"]:
-        return lunarMonths["ទុតិយាសាឍ"];
-      case lunarMonths["ទុតិយាសាឍ"]:
-        return lunarMonths["ស្រាពណ៍"];
-      default:
-        throw Error("Plugin is facing wrong calculation (Invalid month)");
+  // Khmer date format handler
+  const formatKhmerDate = (
+    date: dayjs.Dayjs,
+    month: number,
+    dayjs: dayjs.Dayjs,
+    format: string,
+  ): string => {
+    if (format === null || format === undefined) {
+      // Default date format
+      const dayOfWeek = dayjs.day();
+      const moonDay = getLunarDate(date);
+      const beYear = getBEYear(dayjs);
+      // const animalYear = getAnimalYear(dayjs);
+      // const eraYear = getJolakSakarajYear(dayjs) % 10;
+      return `ថ្ងៃ${constant.kh.weekdays[dayOfWeek]} ${moonDay.count}${
+        constant.kh.moonStatus[moonDay.moonStatus]
+      } ខែ${constant.kh.lunarMonths[month]} ឆ្នាំ${
+        constant.kh.animalYear[animalYear]
+      } ${constant.kh.eraYear[eraYear]} ពុទ្ធសករាជ ${beYear}`;
+    } else if (typeof format === "string") {
     }
+  };
+
+  // format date to Khmer date
+  const format = (format: string): string => {
+    const date = globalDate.clone();
+    const lunarDate = getLunarDate(date);
   };
 }
 dayjskh(dayjs());
 // console.log(dayjskh(dayjs("2021-01-01")).getLunarDate(dayjs("2021-01-01")));
-console.log(dayjs().month());
+// console.log(dayjs().month());

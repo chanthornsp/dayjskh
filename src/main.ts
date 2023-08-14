@@ -14,10 +14,10 @@ import badMutable from "dayjs/plugin/badMutable";
 dayjs.extend(updateLocale);
 dayjs.extend(localeData);
 dayjs.extend(duration);
-dayjs.extend(tz);
+// dayjs.extend(tz);
 dayjs.locale(km);
 // set default zone to Asia/Phnom_Penh
-dayjs.tz.setDefault("Asia/Phnom_Penh");
+// dayjs.tz.setDefault("Asia/Phnom_Penh");
 
 dayjs.updateLocale("km", {
   // check time unit
@@ -32,7 +32,7 @@ dayjs.updateLocale("km", {
 
 const { lunarMonths, solarMonths, moonStatus, khNewYear } = constant;
 
-export default function dayjskh(date?: ConfigType) {
+export default function dayjskh(date?: dayjs.Dayjs) {
   const globalDate = date ? dayjs(date) : dayjs();
 
   const { floor } = Math;
@@ -170,10 +170,10 @@ export default function dayjskh(date?: ConfigType) {
   };
 
   const getMaybeBEYear = (date: dayjs.Dayjs): number => {
-    if (date.month() <= solarMonths["មេសា"]) {
-      return date.year() + 544;
-    } else {
+    if (date.month() + 1 <= solarMonths["មេសា"] + 1) {
       return date.year() + 543;
+    } else {
+      return date.year() + 544;
     }
   };
 
@@ -222,16 +222,11 @@ export default function dayjskh(date?: ConfigType) {
   const getLunarDate = (date: dayjs.Dayjs): any => {
     // Add badMutable plugin to change original date
     dayjs.extend(badMutable);
-
     // Epoch Date: January 1, 1900
     let epochDayjs = dayjs("1900-01-01");
     let khmerMonth = lunarMonths["បុស្ស"];
     let khmerDay = 0; // 0 - 29 ១កើត ... ១៥កើត ១រោច ...១៤រោច (១៥រោច)
-
     let differentFromEpoch = date.diff(epochDayjs);
-
-    // fixed dayjs not change original date
-
     // Find nearest year epoch
     if (differentFromEpoch > 0) {
       while (
@@ -248,13 +243,11 @@ export default function dayjskh(date?: ConfigType) {
     } else {
       do {
         epochDayjs.subtract(
-          getNumDayOfKhmerYear(
-            getMaybeBEYear(epochDayjs.clone().subtract(1, "year")),
-          ),
+          getNumDayOfKhmerYear(getMaybeBEYear(epochDayjs)),
           "day",
         );
       } while (
-        dayjs.duration(date.diff(epochDayjs), "milliseconds").asDays() > 0
+        dayjs.duration(epochDayjs.diff(date), "milliseconds").asDays() > 0
       );
     }
 
@@ -268,8 +261,9 @@ export default function dayjskh(date?: ConfigType) {
         "day",
       );
       khmerMonth = nextMonthOf(khmerMonth, getMaybeBEYear(epochDayjs));
+      console.log(khmerMonth);
     }
-
+    // console.log(khmerMonth);
     khmerDay += floor(
       dayjs.duration(date.diff(epochDayjs), "milliseconds").asDays(),
     );
@@ -289,7 +283,6 @@ export default function dayjskh(date?: ConfigType) {
       dayjs.duration(date.diff(epochDayjs), "milliseconds").asDays(),
       "day",
     );
-
     return {
       day: khmerDay,
       month: khmerMonth,
@@ -377,18 +370,20 @@ export default function dayjskh(date?: ConfigType) {
     dayjs: dayjs.Dayjs,
     format: string,
   ): string => {
-    if (format === null || format === undefined) {
+    if (format === null || format === undefined || format === "") {
       // Default date format
       const dayOfWeek = dayjs.day();
       const moonDay = getKhmerLunarDayName(day);
       const beYear = getBEYear(dayjs);
       const animalYear = getAnimalYear(dayjs);
       const eraYear = getJolakSakarajYear(dayjs) % 10;
-      return `ថ្ងៃ${constant.kh.weekdays[dayOfWeek]} ${moonDay.count}${
-        constant.kh.moonStatus[moonDay.moonStatus]
-      } ខែ${constant.kh.lunarMonths[month]} ឆ្នាំ${
-        constant.kh.animalYear[animalYear]
-      } ${constant.kh.eraYear[eraYear]} ពុទ្ធសករាជ ${beYear}`;
+      return constant.kh.postformat(
+        `ថ្ងៃ${constant.kh.weekdays[dayOfWeek]} ${moonDay.count}${
+          constant.kh.moonStatus[moonDay.moonStatus]
+        } ខែ${constant.kh.lunarMonths[month]} ឆ្នាំ${
+          constant.kh.animalYear[animalYear]
+        } ${constant.kh.eraYear[eraYear]} ពុទ្ធសករាជ ${beYear}`,
+      );
     } else if (typeof format === "string") {
       const formatRules = {
         W: () => {
@@ -440,15 +435,32 @@ export default function dayjskh(date?: ConfigType) {
           return getJolakSakarajYear(dayjs);
         },
       };
+      return constant.kh.postformat(
+        format.replace(
+          new RegExp(Object.keys(formatRules).join("|"), "g"),
+          (m) => formatRules[m](),
+        ),
+      );
     }
   };
 
   // format date to Khmer date
-  const format = (format: string): string => {
+  const format = (format?: string): string => {
     const date = globalDate.clone();
     const lunarDate = getLunarDate(date);
+    const result = formatKhmerDate(
+      lunarDate.day,
+      lunarDate.month,
+      date,
+      format,
+    );
+    return result;
+  };
+
+  return {
+    format,
   };
 }
-dayjskh(dayjs());
+dayjskh(dayjs()).format("W");
 // console.log(dayjskh(dayjs("2021-01-01")).getLunarDate(dayjs("2021-01-01")));
 // console.log(dayjs().month());

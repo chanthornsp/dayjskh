@@ -8,10 +8,11 @@
   </head>
   <body>
     <div id="app"></div>
-    <script type="module" src="/src/main.ts">
-      import dayjskh from 'dayjskh'
-      console.log(dayjskh)
-      console.log(dayjskh().format('YYYY-MM-DD HH:mm:ss'))
+    <script type="module">
+      import dayjs from "dayjs";
+      import toKhDate from "./src/main.ts";
+      dayjs.extend(toKhDate);
+      console.log(dayjs().toKhDate());
     </script>
   </body>
 </html>

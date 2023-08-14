@@ -80,7 +80,7 @@ export default function learnSak(jsYear: number = dayjs().year()) {
 
   const dayLerngSak = (getInfo(jsYear).harkun - 2) % 7;
 
-  const lunarDateLearngSak = (): {
+  const lunarDateLerngSak = (): {
     day: number;
     month: number;
   } => {
@@ -277,7 +277,7 @@ export default function learnSak(jsYear: number = dayjs().year()) {
     isChantreathimeas: getIsChantreathimeas(jsYear),
     jesthHas30: jesthHas30(),
     dayLerngSak: dayLerngSak,
-    lunarDateLearngSak: lunarDateLearngSak(),
+    lunarDateLerngSak: lunarDateLerngSak(),
     newYearsDaySotins: newYearsDaySotins(),
     timeOfNewYear: timeOfNewYear(),
   };

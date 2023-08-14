@@ -3,7 +3,7 @@
 
 import { constant } from "./constsant";
 import learnSak from "./lerngSak";
-import dayjs, { ConfigType } from "dayjs";
+import dayjs, { ConfigType, Dayjs } from "dayjs";
 import localeData from "dayjs/plugin/localeData";
 import km from "dayjs/locale/km";
 import updateLocale from "dayjs/plugin/updateLocale";
@@ -312,9 +312,67 @@ export default function dayjskh(date?: ConfigType) {
     }
   };
 
+  // get khmer new year day
+  const getKhmerNewYear = (gregorianYear: number): dayjs.Dayjs => {
+    // ពីគ្រិស្ដសករាជ ទៅ ចុល្លសករាជ
+    let jsYear = gregorianYear + 544 - 1182;
+    let info = learnSak(jsYear);
+    let numberOfNewYearDay;
+    if (info.newYearsDaySotins[0].angsar === 0) {
+      numberOfNewYearDay = 4;
+    } else {
+      numberOfNewYearDay = 3;
+    }
+    let epochLerngSak = dayjs(
+      `${gregorianYear}-04-17 ${info.timeOfNewYear.hour}:${info.timeOfNewYear.minute}`,
+    );
+    let KhEpoch = getLunarDate(epochLerngSak);
+    let diffFromEpoch =
+      (KhEpoch.month - 4) * 30 +
+      KhEpoch.day -
+      ((info.lunarDateLerngSak.month - 4) * 30 + info.lunarDateLerngSak.day);
+    const result = epochLerngSak.subtract(
+      diffFromEpoch + numberOfNewYearDay,
+      "day",
+    );
+
+    return result;
+  };
+  // find animal year
+  const getAnimalYear = (date: dayjs.Dayjs): number => {
+    const year = date.year();
+    const KhmerNewYear = getKhmerNewYear(year);
+    if (date.diff(KhmerNewYear) < 0) {
+      return (year + 543 + 4) % 12;
+    } else {
+      return (year + 544 + 4) % 12;
+    }
+  };
+
+  // Jolak Sakaraj
+  const getJolakSakarajYear = (date: dayjs.Dayjs) => {
+    const year = date.year();
+    const KhmerNewYear = getKhmerNewYear(year);
+    if (date.diff(KhmerNewYear) < 0) {
+      return year + 543 - 1182;
+    } else {
+      return year + 544 - 1182;
+    }
+  };
+
+  const getKhmerLunarDayName = (
+    day: number,
+  ): { count: number; moonStatus: number } => {
+    return {
+      count: (day % 15) + 1,
+      moonStatus:
+        day > 14 ? constant.moonStatus["រោច"] : constant.moonStatus["កើត"],
+    };
+  };
+
   // Khmer date format handler
   const formatKhmerDate = (
-    date: dayjs.Dayjs,
+    day: number,
     month: number,
     dayjs: dayjs.Dayjs,
     format: string,
@@ -322,16 +380,66 @@ export default function dayjskh(date?: ConfigType) {
     if (format === null || format === undefined) {
       // Default date format
       const dayOfWeek = dayjs.day();
-      const moonDay = getLunarDate(date);
+      const moonDay = getKhmerLunarDayName(day);
       const beYear = getBEYear(dayjs);
-      // const animalYear = getAnimalYear(dayjs);
-      // const eraYear = getJolakSakarajYear(dayjs) % 10;
+      const animalYear = getAnimalYear(dayjs);
+      const eraYear = getJolakSakarajYear(dayjs) % 10;
       return `ថ្ងៃ${constant.kh.weekdays[dayOfWeek]} ${moonDay.count}${
         constant.kh.moonStatus[moonDay.moonStatus]
       } ខែ${constant.kh.lunarMonths[month]} ឆ្នាំ${
         constant.kh.animalYear[animalYear]
       } ${constant.kh.eraYear[eraYear]} ពុទ្ធសករាជ ${beYear}`;
     } else if (typeof format === "string") {
+      const formatRules = {
+        W: () => {
+          return constant.kh.weekdays[dayjs.day()];
+        },
+        w: () => {
+          return constant.kh.weekdaysShort[dayjs.day()];
+        },
+        d: () => {
+          const moonDay = getKhmerLunarDayName(day);
+          return moonDay.count;
+        },
+        D: () => {
+          const moonDay = getKhmerLunarDayName(day);
+          return ("" + moonDay.count).length === 1
+            ? `០${moonDay.count}`
+            : moonDay.count;
+        },
+        N: () => {
+          const moonDay = getKhmerLunarDayName(day);
+          return constant.kh.moonStatus[moonDay.moonStatus];
+        },
+        n: () => {
+          const moonDay = getKhmerLunarDayName(day);
+          return constant.kh.moonStatusShort[moonDay.moonStatus];
+        },
+        o: () => {
+          return constant.kh.moonDays[day];
+        },
+        m: () => {
+          return constant.kh.lunarMonths[month];
+        },
+        M: () => {
+          return constant.kh.months[dayjs.month()];
+        },
+        a: () => {
+          return constant.kh.animalYear[getAnimalYear(dayjs)];
+        },
+        e: () => {
+          return constant.kh.eraYear[getJolakSakarajYear(dayjs) % 10];
+        },
+        b: () => {
+          return getBEYear(dayjs);
+        },
+        c: () => {
+          return dayjs.year();
+        },
+        j: () => {
+          return getJolakSakarajYear(dayjs);
+        },
+      };
     }
   };
 

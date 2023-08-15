@@ -13,8 +13,9 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 dayjs.extend(customParseFormat);
 dayjs.extend(updateLocale);
 dayjs.extend(duration);
-dayjs.locale(km);
+dayjs.extend(badMutable);
 
+dayjs.locale(km);
 dayjs.updateLocale("km", {
   // check time unit
   meridiem: function (hour: number) {
@@ -220,28 +221,26 @@ export default function dayjskh(date?: dayjs.Dayjs | string) {
 
   // calculate date from dayjs to Khmer date
   const getLunarDate = (targetDate: dayjs.Dayjs): any => {
-    dayjs.extend(badMutable);
-
     // Add badMutable plugin to change original date
     // Epoch Date: January 1, 1900
-    const epochDayjs = dayjs("1900-01-01");
-    let khmerMonth = lunarMonths["បុស្ស"];
+    let epochDayjs = dayjs("1900-01-01");
+    const epochDayjsClone = epochDayjs.clone();
+    let khmerMonth = 1;
     let khmerDay = 0; // 0 - 29 ១កើត ... ១៥កើត ១រោច ...១៤រោច (១៥រោច)
     const differentFromEpoch = targetDate.diff(epochDayjs);
     // Find nearest year epoch
     if (differentFromEpoch > 0) {
       while (
         dayjs.duration(targetDate.diff(epochDayjs), "milliseconds").asDays() > // ok
-        getNumDayOfKhmerYear(getMaybeBEYear(epochDayjs.clone().add(1, "year")))
+        getNumDayOfKhmerYear(getMaybeBEYear(epochDayjsClone.add(1, "year")))
       ) {
         epochDayjs.add(
           getNumDayOfKhmerYear(
-            getMaybeBEYear(epochDayjs.clone().add(1, "year")),
+            getMaybeBEYear(epochDayjsClone.clone().add(1, "year")),
           ),
           "day",
         );
       }
-      epochDayjs.add(1, "month").format("DD-MM-YYYY"); // should be 26-12-2019
     } else {
       do {
         epochDayjs.subtract(
@@ -263,7 +262,7 @@ export default function dayjskh(date?: dayjs.Dayjs | string) {
       );
       khmerMonth = nextMonthOf(khmerMonth, getMaybeBEYear(epochDayjs));
     }
-    khmerDay = floor(
+    khmerDay += floor(
       dayjs.duration(targetDate.diff(epochDayjs), "milliseconds").asDays(),
     );
     // fix result display 15 រោច ខែ ជេស្ឋ នៅថ្ងៃ ១ កើតខែបឋមាសាធ
@@ -277,15 +276,22 @@ export default function dayjskh(date?: dayjs.Dayjs | string) {
       khmerMonth = nextMonthOf(khmerMonth, getMaybeBEYear(epochDayjs));
     }
 
-    epochDayjs.add(
+    const date = epochDayjs.add(
       dayjs.duration(targetDate.diff(epochDayjs), "milliseconds").asDays(),
       "day",
     );
+    const month = khmerMonth;
+    const day = khmerDay;
+
+    // reset khmerDay, khmerMonth, epochDayjs
+    khmerDay = 0;
+    khmerMonth = 1;
+    epochDayjs = dayjs("1900-01-01");
 
     return {
-      day: khmerDay,
-      month: khmerMonth,
-      epochMoved: epochDayjs,
+      day: day,
+      month: month,
+      epochMoved: date,
     };
   };
 
@@ -317,14 +323,16 @@ export default function dayjskh(date?: dayjs.Dayjs | string) {
     }
     let epochLerngSak = dayjs(
       `${gregorianYear}-04-17 ${info.timeOfNewYear.hour}:${info.timeOfNewYear.minute}`,
+      "YYYY-MM-DD H:m",
     );
     let KhEpoch = getLunarDate(epochLerngSak);
     let diffFromEpoch =
       (KhEpoch.month - 4) * 30 +
       KhEpoch.day -
       ((info.lunarDateLerngSak.month - 4) * 30 + info.lunarDateLerngSak.day);
+
     const result = epochLerngSak.subtract(
-      diffFromEpoch + numberOfNewYearDay,
+      diffFromEpoch + numberOfNewYearDay - 1,
       "day",
     );
 
@@ -458,6 +466,6 @@ export default function dayjskh(date?: dayjs.Dayjs | string) {
 
   return {
     format,
-    khmerNewYearDate: getKhmerNewYear(globalDate.clone().year()).format(),
+    khmerNewYearDate: getKhmerNewYear,
   };
 }

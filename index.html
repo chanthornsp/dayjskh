@@ -12,9 +12,10 @@
       import dayjs from "dayjs";
       import toKhDate from "./src/main.ts";
       dayjs.extend(toKhDate);
-      const date = dayjs();
+      const date = dayjs().add(1, "year");
       console.log(date.toKhDate().format());
-      console.log(date.toKhDate());
+      console.log(date.format("DD/MM/YYYY"));
+      // console.log(date.khNewYear(2024).format("DD/MM/YYYY HH:mm"));
     </script>
   </body>
 </html>

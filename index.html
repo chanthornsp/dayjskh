@@ -12,7 +12,9 @@
       import dayjs from "dayjs";
       import toKhDate from "./src/main.ts";
       dayjs.extend(toKhDate);
-      console.log(dayjs().toKhDate());
+      const date = dayjs();
+      console.log(date.toKhDate().format());
+      console.log(date.toKhDate());
     </script>
   </body>
 </html>

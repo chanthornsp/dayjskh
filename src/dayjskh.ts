@@ -13,7 +13,6 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 dayjs.extend(customParseFormat);
 dayjs.extend(updateLocale);
 dayjs.extend(duration);
-dayjs.extend(badMutable);
 dayjs.locale(km);
 
 dayjs.updateLocale("km", {
@@ -221,29 +220,28 @@ export default function dayjskh(date?: dayjs.Dayjs | string) {
 
   // calculate date from dayjs to Khmer date
   const getLunarDate = (targetDate: dayjs.Dayjs): any => {
+    dayjs.extend(badMutable);
+
     // Add badMutable plugin to change original date
     // Epoch Date: January 1, 1900
     const epochDayjs = dayjs("1900-01-01");
-    const epochDayjsClone = epochDayjs.clone();
     let khmerMonth = lunarMonths["បុស្ស"];
     let khmerDay = 0; // 0 - 29 ១កើត ... ១៥កើត ១រោច ...១៤រោច (១៥រោច)
     const differentFromEpoch = targetDate.diff(epochDayjs);
     // Find nearest year epoch
     if (differentFromEpoch > 0) {
       while (
-        dayjs
-          .duration(targetDate.diff(epochDayjs), "milliseconds")
-          .clone()
-          .asDays() > // ok
-        getNumDayOfKhmerYear(getMaybeBEYear(epochDayjsClone.add(1, "year")))
+        dayjs.duration(targetDate.diff(epochDayjs), "milliseconds").asDays() > // ok
+        getNumDayOfKhmerYear(getMaybeBEYear(epochDayjs.clone().add(1, "year")))
       ) {
         epochDayjs.add(
           getNumDayOfKhmerYear(
-            getMaybeBEYear(epochDayjsClone.clone().add(1, "year")),
+            getMaybeBEYear(epochDayjs.clone().add(1, "year")),
           ),
           "day",
         );
       }
+      epochDayjs.add(1, "month").format("DD-MM-YYYY"); // should be 26-12-2019
     } else {
       do {
         epochDayjs.subtract(
@@ -251,10 +249,7 @@ export default function dayjskh(date?: dayjs.Dayjs | string) {
           "day",
         );
       } while (
-        dayjs
-          .duration(epochDayjs.diff(targetDate), "milliseconds")
-          .clone()
-          .asDays() > 0
+        dayjs.duration(epochDayjs.diff(targetDate), "milliseconds").asDays() > 0
       );
     }
     // Move epoch month
@@ -268,11 +263,9 @@ export default function dayjskh(date?: dayjs.Dayjs | string) {
       );
       khmerMonth = nextMonthOf(khmerMonth, getMaybeBEYear(epochDayjs));
     }
-
-    khmerDay += floor(
+    khmerDay = floor(
       dayjs.duration(targetDate.diff(epochDayjs), "milliseconds").asDays(),
     );
-
     // fix result display 15 រោច ខែ ជេស្ឋ នៅថ្ងៃ ១ កើតខែបឋមាសាធ
     // ករណី ខែជេស្ឋមានតែ ២៩ ថ្ងៃ តែលទ្ធផលបង្ហាញ ១៥រោច ខែជេស្ឋ
     const totalDaysOfTheMonth = getMaxDayOfKhmerMonth(
@@ -288,6 +281,7 @@ export default function dayjskh(date?: dayjs.Dayjs | string) {
       dayjs.duration(targetDate.diff(epochDayjs), "milliseconds").asDays(),
       "day",
     );
+
     return {
       day: khmerDay,
       month: khmerMonth,
@@ -464,6 +458,6 @@ export default function dayjskh(date?: dayjs.Dayjs | string) {
 
   return {
     format,
-    date: globalDate,
+    khmerNewYearDate: getKhmerNewYear(globalDate.clone().year()).format(),
   };
 }

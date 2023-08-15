@@ -61,10 +61,14 @@ export default function learnSak(jsYear: number = dayjs().year()) {
           (infoOfPrevYear === 137 && infoOfYear === 0)))
     );
   };
+
+  const has366Days = getHas366Days(jsYear);
+  const isAdhikameas = getIsAdhikameas(jsYear);
+  const isChantreathimeas = getIsChantreathimeas(jsYear);
+
   const jesthHas30 = (): boolean => {
-    let isAthikameas = getIsAdhikameas(jsYear);
-    let isChantreathimeas = getIsChantreathimeas(jsYear);
-    let tmp = getIsChantreathimeas(jsYear);
+    const isAthikameas = isAdhikameas;
+    let tmp = isChantreathimeas;
     if (isAthikameas && isChantreathimeas) {
       tmp = false;
     }
@@ -272,9 +276,9 @@ export default function learnSak(jsYear: number = dayjs().year()) {
     kromathopol: info.kromathopol,
     avaman: info.avaman,
     bodithey: info.bodithey,
-    has366Days: getHas366Days(jsYear),
-    isAdhikameas: getIsAdhikameas(jsYear),
-    isChantreathimeas: getIsChantreathimeas(jsYear),
+    has366Days: has366Days,
+    isAdhikameas: isAdhikameas,
+    isChantreathimeas: isChantreathimeas,
     jesthHas30: jesthHas30(),
     dayLerngSak: dayLerngSak,
     lunarDateLerngSak: lunarDateLerngSak(),

@@ -7,15 +7,35 @@
     <title>DayjsKh</title>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app">
+      <h1></h1>
+      <h2></h2>
+      <h3></h3>
+      <ul></ul>
+    </div>
     <script type="module">
       import dayjs from "dayjs";
       import toKhDate from "./src/main.ts";
       dayjs.extend(toKhDate);
-      const date = dayjs().add(1, "year");
-      console.log(date.toKhDate().format());
-      console.log(date.format("DD/MM/YYYY"));
+      const date = dayjs().set("year", 2050).set("month", 0).set("date", 1);
+      // document.querySelector("h1").innerHTML = date.toKhDate().format();
+      // document.querySelector("h2").innerHTML = date.format("DD/MM/YYYY HH:mm");
+      // document.querySelector("h3").innerHTML = date
+      // .khNewYear(2024)
+      // .format("DD/MM/YYYY HH:mm");
       // console.log(date.khNewYear(2024).format("DD/MM/YYYY HH:mm"));
+      // loop 5 days
+      const ul = document.querySelector("ul");
+      for (let i = 0; i < 30; i++) {
+        const li = document.createElement("li");
+        li.innerHTML = `${date
+          .add(i, "day")
+          .toKhDate()
+          .format("ថ្ងៃ W DN ខែ m")} - ${date
+          .add(i, "day")
+          .format("DD/MM/YYYY")}`;
+        ul.appendChild(li);
+      }
     </script>
   </body>
 </html>

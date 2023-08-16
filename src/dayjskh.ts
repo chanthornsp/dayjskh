@@ -13,17 +13,17 @@ dayjs.extend(customParseFormat);
 dayjs.extend(updateLocale);
 dayjs.extend(duration);
 
-dayjs.locale(km);
-dayjs.updateLocale("km", {
-  // check time unit
-  meridiem: function (hour: number) {
-    if (hour >= 12) {
-      return "ល្ងាច";
-    } else {
-      return "ព្រឹក";
-    }
-  },
-});
+// dayjs.locale(km);
+// dayjs.updateLocale("km", {
+//   // check time unit
+//   meridiem: function (hour: number) {
+//     if (hour >= 12) {
+//       return "ល្ងាច";
+//     } else {
+//       return "ព្រឹក";
+//     }
+//   },
+// });
 
 const { lunarMonths, solarMonths, moonStatus, khNewYear } = constant;
 
@@ -228,11 +228,11 @@ export default function dayjskh(date?: dayjs.Dayjs | string) {
     if (targetDate.diff(epochDayjs) > 0) {
       while (
         dayjs.duration(targetDate.diff(epochDayjs), "milliseconds").asDays() > // ok
-        getNumDayOfKhmerYear(getMaybeBEYear(epochClone.add(1, "year")))
+        getNumDayOfKhmerYear(getMaybeBEYear(epochDayjs.clone().add(1, "year")))
       ) {
-        epochClone = epochClone.clone();
+        epochClone = epochDayjs.add(1, "year");
         epochDayjs = epochDayjs.add(
-          getNumDayOfKhmerYear(getMaybeBEYear(epochClone.add(1, "year"))),
+          getNumDayOfKhmerYear(getMaybeBEYear(epochClone)),
           "day",
         );
         epochClone = epochClone.add(1, "year");

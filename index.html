@@ -2,7 +2,6 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DayjsKh</title>
   </head>
@@ -11,6 +10,7 @@
       <h1></h1>
       <h2></h2>
       <h3></h3>
+      <pre></pre>
       <div
         style="
           display: flex;
@@ -27,9 +27,11 @@
       import toKhDate from "./src/main.ts";
       dayjs.extend(toKhDate);
       const date = dayjs();
-      document.querySelector("h1").innerHTML = date.toKhDate().format("");
+      document.querySelector("h1").innerHTML = date.toKhDate();
       // document.querySelector("h2").innerHTML = date.format("DD/MM/YYYY HH:mm");
-      document.querySelector("h3").innerHTML = date.khNewYear(2028).format();
+      document.querySelector("pre").innerHTML = JSON.stringify(
+        date.year(2024).khNewYear(),
+      );
       // .format("DD/MM/YYYY HH:mm");
       // console.log(date.khNewYear(2024).format("DD/MM/YYYY HH:mm"));
       // loop 5 days
@@ -37,19 +39,21 @@
       for (let i = 0; i < 30; i++) {
         const li = document.createElement("li");
         li.innerHTML = `${date
-          .date(i + 1)
-          .toKhDate()
-          .format("ថ្ងៃ W DN ខែ m")} - ${date.format("DD/MM/YYYY")}`;
+          .add(i, "day")
+          .toKhDate("ថ្ងៃ W DN ខែ m")} - ${date
+          .add(i, "day")
+          .format("DD/MM/YYYY")}`;
         ul.appendChild(li);
       }
-      const date2 = dayjs("2007-01-01T00:00:00+07:00");
+      const date2 = dayjs("2050-01-01T00:00:00+07:00");
       const ul2 = document.querySelector("#ul2");
       for (let i = 0; i < 30; i++) {
         const li = document.createElement("li");
         li.innerHTML = `${date2
-          .date(i + 1)
-          .toKhDate()
-          .format("ថ្ងៃ W DN ខែ m")} - ${date2.format("DD/MM/YYYY")}`;
+          .add(i, "day")
+          .toKhDate("ថ្ងៃ W DN ខែ m")} - ${date2
+          .add(i, "day")
+          .format("DD/MM/YYYY")}`;
         ul2.appendChild(li);
       }
     </script>

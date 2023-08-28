@@ -1,19 +1,17 @@
 // Khmer Chhankitek Calendar
 // Ref.: https://khmer-calendar.tovnah.com/calendar/toc.php
 
-import { constant } from "./constsant";
+import { constant } from "./constant";
 import learnSak from "./lerngSak";
-import dayjs from "dayjs";
-import updateLocale from "dayjs/plugin/updateLocale";
-import duration from "dayjs/plugin/duration";
-import customParseFormat from "dayjs/plugin/customParseFormat";
-import badMutable from "dayjs/plugin/badMutable";
+import dayjs from "dayjs/esm/index.js";
+import duration from "dayjs/esm/plugin/duration";
+import customParseFormat from "dayjs/esm/plugin/customParseFormat";
+import badMutable from "dayjs/esm/plugin/badMutable";
 
 dayjs.extend(customParseFormat);
-dayjs.extend(updateLocale);
 dayjs.extend(duration);
 
-const { lunarMonths, solarMonths } = constant;
+const { lunarMonths } = constant;
 
 export default function dayjskh(date?: dayjs.Dayjs | string) {
   // check if date is valid
@@ -147,9 +145,9 @@ export default function dayjskh(date?: dayjs.Dayjs | string) {
   }
 
   // is Gregorian Leap Year
-  function isGregorianLeapYear(beYear: number): boolean {
-    return (beYear % 4 === 0 && beYear % 100 !== 0) || beYear % 400 === 0;
-  }
+  // function isGregorianLeapYear(beYear: number): boolean {
+  //   return (beYear % 4 === 0 && beYear % 100 !== 0) || beYear % 400 === 0;
+  // }
 
   // get Max day of Khmer month
   function getMaxDayOfKhmerMonth(beMonth: number, beYear: number): number {
@@ -176,14 +174,6 @@ export default function dayjskh(date?: dayjs.Dayjs | string) {
     } else {
       return 354;
     }
-  }
-
-  // Get number of day in Gregorian year
-  function getNumDayOfGregorianYear(adYear: number): number {
-    if (isGregorianLeapYear(adYear)) {
-      return 366;
-    }
-    return 365;
   }
 
   // Buddhist Era
@@ -323,9 +313,9 @@ export default function dayjskh(date?: dayjs.Dayjs | string) {
 
   // រកថ្ងៃវិសាខបូជា
   // ថ្ងៃដាច់ឆ្នាំពុទ្ធសករាជ
-  const getVisakBochea = (
+  function getVisakBochea(
     gregorianYear: number,
-  ): string | number | dayjs.Dayjs | Date | null | undefined | any => {
+  ): string | number | dayjs.Dayjs | Date | null | undefined | any {
     const date = dayjs(`${gregorianYear}-01-01`);
     for (var i = 0; i < 365; i++) {
       const lunarDate = getLunarDate(date);
@@ -334,10 +324,40 @@ export default function dayjskh(date?: dayjs.Dayjs | string) {
       }
       date.add(1, "day");
     }
-  };
+  }
+
+  function datesOfKhmerNewYear(
+    startDate: dayjs.Dayjs,
+    numberOfNewYearDays: number,
+  ) {
+    let dates = [];
+    for (let i = 0; i < numberOfNewYearDays; i++) {
+      dates.push(startDate.clone().add(i, "day"));
+    }
+    return dates.map((date, index) => {
+      // find first day
+      let dayName = "Moha Sangkranta"; // មហាសង្រ្កាន្ត
+      if (index === 0) {
+        dayName = "Moha Sangkranta"; // មហាសង្រ្កាន្ត
+      } // last day
+      else if (index === numberOfNewYearDays - 1) {
+        dayName = "Veareak Laeung Sak"; // ថ្ងៃឡើងស័ក
+      } else {
+        dayName = "Veareak Vanabat"; // វារៈវ័នបត
+      }
+      return {
+        date,
+        dayName,
+      };
+    });
+  }
 
   // get khmer new year day
-  function getKhmerNewYear(gregorianYear: number): dayjs.Dayjs {
+  function getKhmerNewYear(gregorianYear: number): {
+    date: dayjs.Dayjs;
+    days: number;
+    dates: { date: dayjs.Dayjs; dayName: string }[];
+  } {
     // ពីគ្រិស្ដសករាជ ទៅ ចុល្លសករាជ
     let jsYear = gregorianYear + 544 - 1182;
     let info = learnSak(jsYear);
@@ -362,47 +382,52 @@ export default function dayjskh(date?: dayjs.Dayjs | string) {
       "day",
     );
 
-    return result;
+    return {
+      date: result,
+      days: numberOfNewYearDay,
+      dates: datesOfKhmerNewYear(result, numberOfNewYearDay),
+    };
   }
   // find animal year
-  const getAnimalYear = (date: dayjs.Dayjs): number => {
+  function getAnimalYear(date: dayjs.Dayjs): number {
     const year = date.year();
-    const KhmerNewYear = getKhmerNewYear(year);
+    const KhmerNewYear = getKhmerNewYear(year).date;
     if (date.diff(KhmerNewYear) < 0) {
       return (year + 543 + 4) % 12;
     } else {
       return (year + 544 + 4) % 12;
     }
-  };
+  }
 
   // Jolak Sakaraj
-  const getJolakSakarajYear = (date: dayjs.Dayjs) => {
+  function getJolakSakarajYear(date: dayjs.Dayjs) {
     const year = date.year();
-    const KhmerNewYear = getKhmerNewYear(year);
+    const KhmerNewYear = getKhmerNewYear(year).date;
     if (date.diff(KhmerNewYear) < 0) {
       return year + 543 - 1182;
     } else {
       return year + 544 - 1182;
     }
-  };
+  }
 
-  const getKhmerLunarDayName = (
-    day: number,
-  ): { count: number; moonStatus: number } => {
+  function getKhmerLunarDayName(day: number): {
+    count: number;
+    moonStatus: number;
+  } {
     return {
       count: (day % 15) + 1,
       moonStatus:
         day > 14 ? constant.moonStatus["រោច"] : constant.moonStatus["កើត"],
     };
-  };
+  }
 
   // Khmer date format handler
-  const formatKhmerDate = (
+  function formatKhmerDate(
     day: number,
     month: number,
     dayjs: dayjs.Dayjs,
     format: string,
-  ): string => {
+  ): string {
     if (format === null || format === undefined || format === "") {
       // Default date format
       const dayOfWeek = dayjs.day();
@@ -475,7 +500,7 @@ export default function dayjskh(date?: dayjs.Dayjs | string) {
         ),
       );
     }
-  };
+  }
 
   // format date to Khmer date
   function format(format?: string): string {

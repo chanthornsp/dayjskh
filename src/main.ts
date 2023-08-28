@@ -1,11 +1,17 @@
 import dayjskh from "./dayjskh";
-export default function toKhDate(o, c, d) {
+import type { PluginFunc } from "dayjs";
+import type plugin from "../types";
+import { constant } from "./constant";
+
+const toKhDate: PluginFunc<plugin.toKhDate> = (o, c, d) => {
   const proto = c.prototype;
-  // add return toKhDate() to dayjs object and parse format for Khmer date
-  proto.toKhDate = function (format) {
-    return format ? dayjskh(this).format(format) : dayjskh(this);
+  proto.toKhDate = function (format?: string) {
+    const date = constant.kh.preparse(this.format());
+    return dayjskh(date).format(format);
   };
-  proto.khNewYear = function (year) {
-    return dayjskh(this).khmerNewYearDate(year ?? this.year());
+  proto.khNewYear = function () {
+    return dayjskh(this.year()).khmerNewYearDate(this.year());
   };
-}
+};
+
+export default toKhDate;

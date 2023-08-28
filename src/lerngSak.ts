@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import { constant } from "./constsant";
+import { constant } from "./constant";
 
 // calculate Khmer New Year
 // based on: https://www.dahlina.com/education/khmer_new_year_time.html?fbclid=IwAR0Eq6US-F0LfplMjKzmiRn7rvPgi31i74Wpv4mNhU034mzdyj-3hYrCA8w

@@ -1,14 +1,19 @@
 {
   "name": "dayjskh",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
+  "version": "0.1.0",
+  "description": "Khmer Lunar date Plugin for Day.js",
   "main": "./src/main.ts",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ChanthornAcademy/dayjskh.git"
+  },
+  "author": "chanthorn",
+  "license": "MIT",
   "devDependencies": {
     "@types/node": "^20.5.7",
     "prettier": "3.0.2",

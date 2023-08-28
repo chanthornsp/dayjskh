@@ -24,11 +24,11 @@
     </div>
     <script type="module">
       import dayjs from "dayjs";
-      import toKhDate from "./src/main.ts";
-      dayjs.extend(toKhDate);
+      import toKhmerDate from "./src/main.ts";
+      dayjs.extend(toKhmerDate);
       const date = dayjs();
       console.log(date.khNewYear());
-      document.querySelector("h1").innerHTML = date.toKhDate();
+      document.querySelector("h1").innerHTML = date.toKhmerDate();
       // document.querySelector("h2").innerHTML = date.format("DD/MM/YYYY HH:mm");
       document.querySelector("pre").innerHTML = JSON.stringify(
         date.year(2024).khNewYear(),
@@ -41,7 +41,7 @@
         const li = document.createElement("li");
         li.innerHTML = `${date
           .add(i, "day")
-          .toKhDate("ថ្ងៃ W DN ខែ m")} - ${date
+          .toKhmerDate("ថ្ងៃ W DN ខែ m")} - ${date
           .add(i, "day")
           .format("DD/MM/YYYY")}`;
         ul.appendChild(li);
@@ -52,7 +52,7 @@
         const li = document.createElement("li");
         li.innerHTML = `${date2
           .add(i, "day")
-          .toKhDate("ថ្ងៃ W DN ខែ m")} - ${date2
+          .toKhmerDate("ថ្ងៃ W DN ខែ m")} - ${date2
           .add(i, "day")
           .format("DD/MM/YYYY")}`;
         ul2.appendChild(li);

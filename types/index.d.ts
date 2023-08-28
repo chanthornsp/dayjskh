@@ -4,8 +4,8 @@ import type { Dayjs, PluginFunc } from "dayjs/esm/index";
 declare const plugin: PluginFunc;
 export = plugin;
 declare namespace plugin {
-  export interface toKhDate {
-    toKhDate(format?: string): string;
+  export interface toKhmerDate {
+    toKhmerDate(format?: string): string;
     khNewYear(): {
       date: dayjs.Dayjs;
       days: number;
@@ -15,5 +15,5 @@ declare namespace plugin {
 }
 
 declare module "dayjs" {
-  interface Dayjs extends plugin.toKhDate {}
+  interface Dayjs extends plugin.toKhmerDate {}
 }

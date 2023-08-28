@@ -3,9 +3,9 @@ import type { PluginFunc } from "dayjs";
 import type plugin from "../types";
 import { constant } from "./constant";
 
-const toKhDate: PluginFunc<plugin.toKhDate> = (o, c, d) => {
+const toKhmerDate: PluginFunc<plugin.toKhmerDate> = (o, c, d) => {
   const proto = c.prototype;
-  proto.toKhDate = function (format?: string) {
+  proto.toKhmerDate = function (format?: string) {
     const date = constant.kh.preparse(this.format());
     return dayjskh(date).format(format);
   };
@@ -14,4 +14,4 @@ const toKhDate: PluginFunc<plugin.toKhDate> = (o, c, d) => {
   };
 };
 
-export default toKhDate;
+export default toKhmerDate;

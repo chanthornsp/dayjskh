@@ -13,12 +13,12 @@ npm install dayjskh
 
 ```js
 import dayjs from "dayjs";
-import toKhDate from "dayjskh";
+import toKhmerDate from "dayjskh";
 
-dayjs.extend(toKhDate);
+dayjs.extend(toKhmerDate);
 
 const date = dayjs();
-console.log(date.toKhDate(format?)); // ថ្ងៃច័ន្ទ ១២កើត ខែស្រាពណ៍ ឆ្នាំថោះ បញ្ចស័ក ពុទ្ធសករាជ ២៥៦៧
+console.log(date.toKhmerDate(format?)); // ថ្ងៃច័ន្ទ ១២កើត ខែស្រាពណ៍ ឆ្នាំថោះ បញ្ចស័ក ពុទ្ធសករាជ ២៥៦៧
 // find khmer new year dateTime
 console.log(date.khNewYear());
 // type

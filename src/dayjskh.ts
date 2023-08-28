@@ -10,9 +10,6 @@ import badMutable from "dayjs/esm/plugin/badMutable";
 
 dayjs.extend(customParseFormat);
 dayjs.extend(duration);
-
-const { lunarMonths } = constant;
-
 export default function dayjskh(date?: dayjs.Dayjs | string) {
   // check if date is valid
   const globalDate = dayjs(date); // if date is undefined, it will return current date
@@ -201,43 +198,24 @@ export default function dayjskh(date?: dayjs.Dayjs | string) {
   // Next month of Khmer month
 
   function nextMonthOf(khmerMonth: number, beYear: number): number {
-    switch (khmerMonth) {
-      case lunarMonths["មិគសិរ"]:
-        return lunarMonths["បុស្ស"];
-      case lunarMonths["បុស្ស"]:
-        return lunarMonths["មាឃ"];
-      case lunarMonths["មាឃ"]:
-        return lunarMonths["ផល្គុន"];
-      case lunarMonths["ផល្គុន"]:
-        return lunarMonths["ចេត្រ"];
-      case lunarMonths["ចេត្រ"]:
-        return lunarMonths["ពិសាខ"];
-      case lunarMonths["ពិសាខ"]:
-        return lunarMonths["ជេស្ឋ"];
-      case lunarMonths["ជេស្ឋ"]: {
-        if (isKhmerLeapMonth(beYear)) {
-          return lunarMonths["បឋមាសាឍ"];
-        } else {
-          return lunarMonths["អាសាឍ"];
-        }
-      }
-      case lunarMonths["អាសាឍ"]:
-        return lunarMonths["ស្រាពណ៍"];
-      case lunarMonths["ស្រាពណ៍"]:
-        return lunarMonths["ភទ្របទ"];
-      case lunarMonths["ភទ្របទ"]:
-        return lunarMonths["អស្សុជ"];
-      case lunarMonths["អស្សុជ"]:
-        return lunarMonths["កក្ដិក"];
-      case lunarMonths["កក្ដិក"]:
-        return lunarMonths["មិគសិរ"];
-      case lunarMonths["បឋមាសាឍ"]:
-        return lunarMonths["ទុតិយាសាឍ"];
-      case lunarMonths["ទុតិយាសាឍ"]:
-        return lunarMonths["ស្រាពណ៍"];
-      default:
-        throw Error("Plugin is facing wrong calculation (Invalid month)");
-    }
+    let khmerMonths = [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      isKhmerLeapMonth(beYear) ? 12 : 7,
+      8,
+      9,
+      10,
+      11,
+      0,
+      13,
+      8,
+    ];
+
+    return khmerMonths[khmerMonth];
   }
 
   // calculate date from dayjs to Khmer date
@@ -313,16 +291,15 @@ export default function dayjskh(date?: dayjs.Dayjs | string) {
 
   // រកថ្ងៃវិសាខបូជា
   // ថ្ងៃដាច់ឆ្នាំពុទ្ធសករាជ
-  function getVisakBochea(
-    gregorianYear: number,
-  ): string | number | dayjs.Dayjs | Date | null | undefined | any {
+  function getVisakBochea(gregorianYear: number): dayjs.Dayjs {
     const date = dayjs(`${gregorianYear}-01-01`);
-    for (var i = 0; i < 365; i++) {
-      const lunarDate = getLunarDate(date);
-      if (lunarDate.month === lunarMonths["ពិសាខ"] && lunarDate.day === 14) {
+    for (let i = 0; i < 365; i++) {
+      const { month, day } = getLunarDate(date);
+      if (month === 5 && day === 14) {
         return date;
+      } else {
+        date.add(1, "day");
       }
-      date.add(1, "day");
     }
   }
 
@@ -416,8 +393,7 @@ export default function dayjskh(date?: dayjs.Dayjs | string) {
   } {
     return {
       count: (day % 15) + 1,
-      moonStatus:
-        day > 14 ? constant.moonStatus["រោច"] : constant.moonStatus["កើត"],
+      moonStatus: day > 14 ? 0 : 1,
     };
   }
 
@@ -505,13 +481,8 @@ export default function dayjskh(date?: dayjs.Dayjs | string) {
   // format date to Khmer date
   function format(format?: string): string {
     const date = globalDate.clone();
-    const lunarDate = getLunarDate(date);
-    const result = formatKhmerDate(
-      lunarDate.day,
-      lunarDate.month,
-      date,
-      format,
-    );
+    const { day, month } = getLunarDate(date);
+    const result = formatKhmerDate(day, month, date, format);
     return result;
   }
 

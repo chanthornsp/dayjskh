@@ -29,6 +29,15 @@
       document.querySelector("h1").innerHTML = date.toKhmerDate();
       // document.querySelector("h2").innerHTML = date.format("DD/MM/YYYY HH:mm");
       document.querySelector("h2").innerHTML = date.khNewYear().date.format();
+
+      let date2 = dayjs("2007-01-01");
+      for (let i = 0; i < 365; i++) {
+        const li = document.createElement("li");
+        li.innerHTML = `${date2.add(i, "day").toKhmerDate("dN m a")} - ${date2
+          .add(i, "day")
+          .format("DD/MM/YYYY")}`;
+        document.querySelector("ul").appendChild(li);
+      }
     </script>
   </body>
 </html>

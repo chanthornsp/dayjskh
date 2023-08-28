@@ -1,5 +1,5 @@
 // add type to support dayjs
-import type { Dayjs, PluginFunc } from "dayjs/esm/index";
+import type { Dayjs, PluginFunc } from "dayjs/index";
 
 declare const plugin: PluginFunc;
 export = plugin;

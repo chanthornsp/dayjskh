@@ -26,37 +26,32 @@
       import dayjs from "dayjs";
       import toKhDate from "./src/main.ts";
       dayjs.extend(toKhDate);
-      const date = dayjs().set("year", 2050).set("month", 0).set("date", 1);
-      document.querySelector("h1").innerHTML = date.toKhDate().format();
+      const date = dayjs();
+      document.querySelector("h1").innerHTML = date.toKhDate().format("");
       // document.querySelector("h2").innerHTML = date.format("DD/MM/YYYY HH:mm");
-      // document.querySelector("h3").innerHTML = date
-      // .khNewYear(2024)
+      document.querySelector("h3").innerHTML = date.khNewYear(2028).format();
       // .format("DD/MM/YYYY HH:mm");
       // console.log(date.khNewYear(2024).format("DD/MM/YYYY HH:mm"));
       // loop 5 days
-      // const ul = document.querySelector("ul");
-      // for (let i = 0; i < 30; i++) {
-      //   const li = document.createElement("li");
-      //   li.innerHTML = `${date
-      //     .add(i, "day")
-      //     .toKhDate()
-      //     .format("ថ្ងៃ W DN ខែ m")} - ${date
-      //     .add(i, "day")
-      //     .format("DD/MM/YYYY")}`;
-      //   ul.appendChild(li);
-      // }
-      // const date2 = dayjs().set("year", 2007).set("month", 0).set("date", 1);
-      // const ul2 = document.querySelector("#ul2");
-      // for (let i = 0; i < 30; i++) {
-      //   const li = document.createElement("li");
-      //   li.innerHTML = `${date2
-      //     .add(i, "day")
-      //     .toKhDate()
-      //     .format("ថ្ងៃ W DN ខែ m")} - ${date2
-      //     .add(i, "day")
-      //     .format("DD/MM/YYYY")}`;
-      //   ul2.appendChild(li);
-      // }
+      const ul = document.querySelector("ul");
+      for (let i = 0; i < 30; i++) {
+        const li = document.createElement("li");
+        li.innerHTML = `${date
+          .date(i + 1)
+          .toKhDate()
+          .format("ថ្ងៃ W DN ខែ m")} - ${date.format("DD/MM/YYYY")}`;
+        ul.appendChild(li);
+      }
+      const date2 = dayjs("2007-01-01T00:00:00+07:00");
+      const ul2 = document.querySelector("#ul2");
+      for (let i = 0; i < 30; i++) {
+        const li = document.createElement("li");
+        li.innerHTML = `${date2
+          .date(i + 1)
+          .toKhDate()
+          .format("ថ្ងៃ W DN ខែ m")} - ${date2.format("DD/MM/YYYY")}`;
+        ul2.appendChild(li);
+      }
     </script>
   </body>
 </html>

@@ -1,7 +1,9 @@
-const lunarMonths: { [key: string]: number } = {};
+const lunarMonths = {};
 "មិគសិរ_បុស្ស_មាឃ_ផល្គុន_ចេត្រ_ពិសាខ_ជេស្ឋ_អាសាឍ_ស្រាពណ៍_ភទ្របទ_អស្សុជ_កក្ដិក_បឋមាសាឍ_ទុតិយាសាឍ"
   .split("_")
-  .forEach((month, index) => (lunarMonths[month] = index));
+  .forEach((month, index) => {
+    lunarMonths[month] = index;
+  });
 
 const solarMonths: { [key: string]: number } = {};
 "មករា_កុម្ភៈ_មីនា_មេសា_ឧសភា_មិថុនា_កក្កដា_សីហា_កញ្ញា_តុលា_វិច្ឆិកា_ធ្នូ"

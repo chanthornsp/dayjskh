@@ -4,28 +4,16 @@
 import { constant } from "./constsant";
 import learnSak from "./lerngSak";
 import dayjs from "dayjs";
-import km from "dayjs/locale/km";
 import updateLocale from "dayjs/plugin/updateLocale";
 import duration from "dayjs/plugin/duration";
 import customParseFormat from "dayjs/plugin/customParseFormat";
+import badMutable from "dayjs/plugin/badMutable";
 
 dayjs.extend(customParseFormat);
 dayjs.extend(updateLocale);
 dayjs.extend(duration);
 
-// dayjs.locale(km);
-// dayjs.updateLocale("km", {
-//   // check time unit
-//   meridiem: function (hour: number) {
-//     if (hour >= 12) {
-//       return "ល្ងាច";
-//     } else {
-//       return "ព្រឹក";
-//     }
-//   },
-// });
-
-const { lunarMonths, solarMonths, moonStatus, khNewYear } = constant;
+const { lunarMonths, solarMonths } = constant;
 
 export default function dayjskh(date?: dayjs.Dayjs | string) {
   // check if date is valid
@@ -37,106 +25,150 @@ export default function dayjskh(date?: dayjs.Dayjs | string) {
   const { floor } = Math;
   // Aharkun: អាហារគុណ ឬ ហារគុណ
   // Aharkun is used for Avoman and Bodithey calculation below. Given adYear as a target year in Buddhist Era
-  const getAharkun = (beYear: number): number => {
+  function getAharkun(beYear: number): number {
     let t = beYear * 292207 + 499;
     return floor(t / 800) + 4;
-  };
+  }
 
-  const getAharkunMod = (beYear: number): number => {
+  function getAharkunMod(beYear: number): number {
     let t = beYear * 292207 + 499;
     return t % 800;
-  };
+  }
 
   // Bodithey: បូតិថី
   // Bodithey determines if a given beYear is a leap-month year. Given year target year in Buddhist Era
-  const getBodithey = (beYear: number): number => {
+  function getBodithey(beYear: number): number {
     const { avml, aharkun } = {
       avml: floor((11 * getAharkun(beYear) + 25) / 692),
       aharkun: getAharkun(beYear),
     };
     return (avml + aharkun + 29) % 30;
-  };
+  }
 
   // Avoman: អាវមាន
   // Avoman determines if a given year is a leap-day year. Given a year in Buddhist Era as denoted as adYear
-  const getAvoman = (beYear: number): number => {
+  function getAvoman(beYear: number): number {
     const aharkun = getAharkun(beYear);
     return (11 * aharkun + 25) % 692;
-  };
+  }
 
   // Kromathupul
-  const khromathupul = (beYear: number): number => {
+  function khromathupul(beYear: number): number {
     const aharkunMod = getAharkunMod(beYear);
     return 800 - aharkunMod;
-  };
+  }
 
   // isKhmerSolarLeap
-  const isKhmerSolarLeap = (beYear: number): boolean => {
+  function isKhmerSolarLeap(beYear: number): boolean {
     return khromathupul(beYear) <= 207;
-  };
+  }
 
   // Regular if year has 30 day
   // leap month if year has 13 months
   // leap day if Jesth month of the year has 1 extra day
   // leap day and month: both of them
-  const getBoditheyLeap = (beYear: number): number => {
+  function getBoditheyLeap(beYear: number): number {
+    let result = 0;
     const avoman = getAvoman(beYear);
     const bodithey = getBodithey(beYear);
-    const boditheyLeap = bodithey >= 25 || bodithey <= 5 ? 1 : 0;
-    const avomanLeap =
-      isKhmerSolarLeap(beYear) && avoman <= 126
-        ? 1
-        : avoman <= 137 && getAvoman(beYear + 1) !== 0
-        ? 1
-        : 0;
-    const result = boditheyLeap + avomanLeap * 2;
+    let boditheyLeap = 0;
+    if (bodithey >= 25 || bodithey <= 5) {
+      boditheyLeap = 1;
+    }
+    // check for avoman leap-day based on gregorian leap
+    let avomanLeap = 0;
+    if (isKhmerSolarLeap(beYear)) {
+      if (avoman <= 126) avomanLeap = 1;
+    } else {
+      if (avoman <= 137) {
+        // check for avoman case 137/0, 137 must be normal year (p.26)
+        if (getAvoman(beYear + 1) === 0) {
+          avomanLeap = 0;
+        } else {
+          avomanLeap = 1;
+        }
+      }
+    }
+
+    // case of 25/5 consecutively
+    // only bodithey 5 can be leap-month, so set bodithey 25 to none
+    if (bodithey === 25) {
+      let nextBodithey = getBodithey(beYear + 1);
+      if (nextBodithey === 5) {
+        boditheyLeap = 0;
+      }
+    }
+
+    // case of 24/6 consecutively, 24 must be leap-month
+    if (bodithey == 24) {
+      let nextBodithey = getBodithey(beYear + 1);
+      if (nextBodithey == 6) {
+        boditheyLeap = 1;
+      }
+    }
+
+    // format leap result (0:regular, 1:month, 2:day, 3:both)
+    if (boditheyLeap === 1 && avomanLeap === 1) {
+      result = 3;
+    } else if (boditheyLeap === 1) {
+      result = 1;
+    } else if (avomanLeap === 1) {
+      result = 2;
+    } else {
+      result = 0;
+    }
+
     return result;
-  };
+  }
 
   // bodithey leap can be both leap-day and leap-month but following the khmer calendar rule, they can't be together on the same year, so leap day must be delayed to next year
-  const getProtetinLeap = (beYear: number): number => {
-    const boditheyLeap = getBoditheyLeap(beYear);
-    switch (boditheyLeap) {
-      case 3:
-        return 1;
-      case 2:
-      case 1:
-        return boditheyLeap;
-      default:
-        return getBoditheyLeap(beYear - 1) === 3 ? 2 : 0;
+  function getProtetinLeap(beYear: number): number {
+    const b = getBoditheyLeap(beYear);
+    if (b === 3) {
+      return 1;
     }
-  };
+    if (b === 2 || b === 1) {
+      return b;
+    }
+    // case of previous year is 3
+    if (getBoditheyLeap(beYear - 1) === 3) {
+      return 2;
+    }
+    return 0;
+  }
 
   // A year with an extra day is called Chhantrea Thimeas (ចន្ទ្រាធិមាស) or Adhikavereak (អធិកវារៈ). This year has 355 days.
-  const isKhmerLunarLeapDay = (beYear: number): boolean => {
+  function isKhmerLunarLeapDay(beYear: number): boolean {
     return getProtetinLeap(beYear) === 2;
-  };
+  }
   // A year with an extra month is called Adhikameas (អធិកមាស). This year has 384 days.
-  const isKhmerLeapMonth = (beYear: number): boolean => {
+  function isKhmerLeapMonth(beYear: number): boolean {
     return getProtetinLeap(beYear) === 1;
-  };
+  }
 
   // is Gregorian Leap Year
-  const isGregorianLeapYear = (beYear: number): boolean => {
+  function isGregorianLeapYear(beYear: number): boolean {
     return (beYear % 4 === 0 && beYear % 100 !== 0) || beYear % 400 === 0;
-  };
+  }
 
   // get Max day of Khmer month
-  const getMaxDayOfKhmerMonth = (beMonth: number, beYear: number): number => {
-    if (beMonth === lunarMonths["ជេស្ឋ"] && isKhmerLunarLeapDay(beYear)) {
+  function getMaxDayOfKhmerMonth(beMonth: number, beYear: number): number {
+    // 'ជេស្ឋ': 6,
+    if (beMonth === 6 && isKhmerLunarLeapDay(beYear)) {
       return 30;
     }
     if (
-      beMonth === lunarMonths["បឋមាសាឍ"] ||
-      beMonth === lunarMonths["ទុតិយាសាឍ"]
+      //  'បឋមាសាឍ': 12, 'ទុតិយាសាឍ': 13
+      beMonth === 12 ||
+      beMonth === 13
     ) {
       return 30;
     }
     return beMonth % 2 === 0 ? 29 : 30;
-  };
+  }
 
   // Get number of day in Khmer year
-  const getNumDayOfKhmerYear = (beYear: number): number => {
+  function getNumDayOfKhmerYear(beYear: number): number {
     if (isKhmerLeapMonth(beYear)) {
       return 384;
     } else if (isKhmerLunarLeapDay(beYear)) {
@@ -144,15 +176,15 @@ export default function dayjskh(date?: dayjs.Dayjs | string) {
     } else {
       return 354;
     }
-  };
+  }
 
   // Get number of day in Gregorian year
-  const getNumDayOfGregorianYear = (adYear: number): number => {
+  function getNumDayOfGregorianYear(adYear: number): number {
     if (isGregorianLeapYear(adYear)) {
       return 366;
     }
     return 365;
-  };
+  }
 
   // Buddhist Era
   // ថ្ងៃឆ្លងឆ្នាំ គឺ ១ រោច ខែពិសាខ
@@ -160,24 +192,25 @@ export default function dayjskh(date?: dayjs.Dayjs | string) {
   // @summary: ឯកឧត្តម សេង សុមុនី អ្នកនាំពាក្យ​ក្រ​សួង​ធម្មការ និង​សាសនា​ឲ្យ​Sabay ដឹង​ថា​នៅ​ប្រ​ទេស​កម្ពុជា​ការ​ឆ្លង​ចូល​ពុទ្ធសករាជថ្មី​គឺ​កំណត់​យក​នៅ​ថ្ងៃព្រះ​ពុទ្ធយាងចូល​និព្វាន ពោល​គឺ​នៅ​ថ្ងៃ​១រោច ខែពិសាខ។
   // @param dayjs
 
-  const getBEYear = (date: dayjs.Dayjs): number => {
+  function getBEYear(date: dayjs.Dayjs): number {
     if (date.diff(getVisakBochea(date.year())) > 0) {
       return date.year() + 544;
     } else {
       return date.year() + 543;
     }
-  };
+  }
 
-  const getMaybeBEYear = (date: dayjs.Dayjs): number => {
-    if (date.month() + 1 <= solarMonths["មេសា"] + 1) {
+  function getMaybeBEYear(date: dayjs.Dayjs): number {
+    if (date.month() <= 4) {
       return date.year() + 543;
     } else {
       return date.year() + 544;
     }
-  };
+  }
 
   // Next month of Khmer month
-  const nextMonthOf = (khmerMonth: number, beYear: number): number => {
+
+  function nextMonthOf(khmerMonth: number, beYear: number): number {
     switch (khmerMonth) {
       case lunarMonths["មិគសិរ"]:
         return lunarMonths["បុស្ស"];
@@ -215,14 +248,18 @@ export default function dayjskh(date?: dayjs.Dayjs | string) {
       default:
         throw Error("Plugin is facing wrong calculation (Invalid month)");
     }
-  };
+  }
 
   // calculate date from dayjs to Khmer date
-  const getLunarDate = (targetDate: dayjs.Dayjs): any => {
+  function getLunarDate(targetDate: dayjs.Dayjs): {
+    day: number;
+    month: number;
+    epochMoved: dayjs.Dayjs;
+  } {
+    dayjs.extend(badMutable);
     // Epoch Date: January 1, 1900
     let epochDayjs = dayjs("1900-01-01");
-    let epochClone = dayjs(epochDayjs);
-    let khmerMonth = lunarMonths["បុស្ស"];
+    let khmerMonth = 1;
     let khmerDay = 0; // 0 - 29 ១កើត ... ១៥កើត ១រោច ...១៤រោច (១៥រោច)
     // Find nearest year epoch
     if (targetDate.diff(epochDayjs) > 0) {
@@ -230,16 +267,16 @@ export default function dayjskh(date?: dayjs.Dayjs | string) {
         dayjs.duration(targetDate.diff(epochDayjs), "milliseconds").asDays() > // ok
         getNumDayOfKhmerYear(getMaybeBEYear(epochDayjs.clone().add(1, "year")))
       ) {
-        epochClone = epochDayjs.add(1, "year");
-        epochDayjs = epochDayjs.add(
-          getNumDayOfKhmerYear(getMaybeBEYear(epochClone)),
+        epochDayjs.add(
+          getNumDayOfKhmerYear(
+            getMaybeBEYear(epochDayjs.clone().add(1, "year")),
+          ),
           "day",
         );
-        epochClone = epochClone.add(1, "year");
       }
     } else {
       do {
-        epochDayjs = epochDayjs.subtract(
+        epochDayjs.subtract(
           getNumDayOfKhmerYear(getMaybeBEYear(epochDayjs)),
           "day",
         );
@@ -252,7 +289,7 @@ export default function dayjskh(date?: dayjs.Dayjs | string) {
       dayjs.duration(targetDate.diff(epochDayjs), "milliseconds").asDays() >
       getMaxDayOfKhmerMonth(khmerMonth, getMaybeBEYear(epochDayjs))
     ) {
-      epochDayjs = epochDayjs.add(
+      epochDayjs.add(
         getMaxDayOfKhmerMonth(khmerMonth, getMaybeBEYear(epochDayjs)),
         "day",
       );
@@ -273,17 +310,16 @@ export default function dayjskh(date?: dayjs.Dayjs | string) {
       khmerMonth = nextMonthOf(khmerMonth, getMaybeBEYear(epochDayjs));
     }
 
-    epochDayjs = epochDayjs.add(
+    epochDayjs.add(
       dayjs.duration(targetDate.diff(epochDayjs), "milliseconds").asDays(),
       "day",
     );
-
     return {
       day: khmerDay,
       month: khmerMonth,
       epochMoved: epochDayjs,
     };
-  };
+  }
 
   // រកថ្ងៃវិសាខបូជា
   // ថ្ងៃដាច់ឆ្នាំពុទ្ធសករាជ
@@ -301,7 +337,7 @@ export default function dayjskh(date?: dayjs.Dayjs | string) {
   };
 
   // get khmer new year day
-  const getKhmerNewYear = (gregorianYear: number): dayjs.Dayjs => {
+  function getKhmerNewYear(gregorianYear: number): dayjs.Dayjs {
     // ពីគ្រិស្ដសករាជ ទៅ ចុល្លសករាជ
     let jsYear = gregorianYear + 544 - 1182;
     let info = learnSak(jsYear);
@@ -327,7 +363,7 @@ export default function dayjskh(date?: dayjs.Dayjs | string) {
     );
 
     return result;
-  };
+  }
   // find animal year
   const getAnimalYear = (date: dayjs.Dayjs): number => {
     const year = date.year();
@@ -442,7 +478,7 @@ export default function dayjskh(date?: dayjs.Dayjs | string) {
   };
 
   // format date to Khmer date
-  const format = (format?: string): string => {
+  function format(format?: string): string {
     const date = globalDate.clone();
     const lunarDate = getLunarDate(date);
     const result = formatKhmerDate(
@@ -452,7 +488,7 @@ export default function dayjskh(date?: dayjs.Dayjs | string) {
       format,
     );
     return result;
-  };
+  }
 
   return {
     format,

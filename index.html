@@ -27,6 +27,7 @@
       import toKhDate from "./src/main.ts";
       dayjs.extend(toKhDate);
       const date = dayjs();
+      console.log(date.khNewYear());
       document.querySelector("h1").innerHTML = date.toKhDate();
       // document.querySelector("h2").innerHTML = date.format("DD/MM/YYYY HH:mm");
       document.querySelector("pre").innerHTML = JSON.stringify(

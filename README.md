@@ -32,6 +32,11 @@ console.log(date.khNewYear());
 // }
 ```
 
+## TODO
+
+-   [ ❌ ] Clean up code
+
 # Author
 
-This library is Ported from [momentkh](https://github.com/ThyrithSor/momentkh) by [Thyrith Sor](https://github.com/ThyrithSor) in to [Day.js Plugin](https://day.js.org/).
+-   This library is Ported from [momentkh](https://github.com/ThyrithSor/momentkh) by [Thyrith Sor](https://github.com/ThyrithSor) in to [Day.js Plugin](https://day.js.org/).
+-   Combined Source Code from [khmercal](https://github.com/seanghay/khmercal) by [Seanghay](https://github.com/seanghay)

@@ -6,6 +6,7 @@ export = plugin;
 declare namespace plugin {
   export interface toKhmerDate {
     toKhmerDate(format?: string): string;
+    khBeta(format?: string): string;
     khNewYear(): {
       date: dayjs.Dayjs;
       days: number;

@@ -6,7 +6,7 @@ import { lunar } from "./khmercal";
 import { utils } from "./utils";
 import { KhmercalType } from "../types/lunar";
 
-const toKhmerDate: PluginFunc<plugin.toKhmerDate> = (o, c, d) => {
+const toKhmerDate: PluginFunc<plugin.toKhmerDate> = (o, c) => {
   const proto = c.prototype;
   proto.toKhmerDate = function (format?: string) {
     const date = constant.kh.preparse(this.format());
@@ -14,16 +14,7 @@ const toKhmerDate: PluginFunc<plugin.toKhmerDate> = (o, c, d) => {
     return utils.formatKhmerDate(lunarDate, this, format);
   };
   proto.khNewYear = function () {
-    return dayjskh(this.year()).khmerNewYearDate(this.year());
+    return dayjskh().khmerNewYearDate(this.year());
   };
-  proto.khBeta = function (format?: string) {
-    const date = constant.kh.preparse(this.format());
-    const lunarDate = lunar(date) as KhmercalType;
-    return utils.formatKhmerDate(lunarDate, this, format);
-  };
-  // proto.toKhmerDate = function (format?: string) {
-  //   const date = constant.kh.preparse(this.format());
-  //   return dayjskh(date).format(format);
-  // };
 };
 export default toKhmerDate;

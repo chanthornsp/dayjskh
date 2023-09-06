@@ -10,11 +10,15 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 dayjs.extend(customParseFormat);
 dayjs.extend(duration);
 export default function dayjskh(date?: dayjs.Dayjs | string) {
-  // check if date is valid
-  const globalDate = dayjs(date); // if date is undefined, it will return current date
-  if (!globalDate.isValid()) {
-    throw new Error("Invalid Date");
+  if (date === undefined || date === null || date === "") {
+    date = dayjs();
+  } else if (typeof date === "string") {
+    date = dayjs(date);
+  } else {
+    date = date;
   }
+
+  const globalDate = date;
 
   const { floor } = Math;
   // Aharkun: អាហារគុណ ឬ ហារគុណ

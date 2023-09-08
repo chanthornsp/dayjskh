@@ -1,10 +1,3 @@
-const lunarMonths = {};
-"មិគសិរ_បុស្ស_មាឃ_ផល្គុន_ចេត្រ_ពិសាខ_ជេស្ឋ_អាសាឍ_ស្រាពណ៍_ភទ្របទ_អស្សុជ_កក្ដិក_បឋមាសាឍ_ទុតិយាសាឍ"
-  .split("_")
-  .forEach((month, index) => {
-    lunarMonths[month] = index;
-  });
-
 const solarMonths: { [key: string]: number } = {};
 "មករា_កុម្ភៈ_មីនា_មេសា_ឧសភា_មិថុនា_កក្កដា_សីហា_កញ្ញា_តុលា_វិច្ឆិកា_ធ្នូ"
   .split("_")
@@ -34,30 +27,8 @@ const khNewYear: { [key: string]: string } = {
 };
 
 const kh = () => {
-  let symbolMap = {
-      1: "១",
-      2: "២",
-      3: "៣",
-      4: "៤",
-      5: "៥",
-      6: "៦",
-      7: "៧",
-      8: "៨",
-      9: "៩",
-      0: "០",
-    },
-    numberMap = {
-      "១": 1,
-      "២": 2,
-      "៣": 3,
-      "៤": 4,
-      "៥": 5,
-      "៦": 6,
-      "៧": 7,
-      "៨": 8,
-      "៩": 9,
-      "០": 0,
-    };
+  const symbols = ["១", "២", "៣", "៤", "៥", "៦", "៧", "៨", "៩", "០"];
+  const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
 
   return {
     months:
@@ -84,17 +55,22 @@ const kh = () => {
       "សំរឹទ្ធិស័ក_ឯកស័ក_ទោស័ក_ត្រីស័ក_ចត្វាស័ក_បញ្ចស័ក_ឆស័ក_សប្តស័ក_អដ្ឋស័ក_នព្វស័ក".split(
         "_",
       ),
-    preparse: function (number: any) {
-      return number.toString().replace(/[០១២៣៤៥៦៧៨៩]/g, (m) => numberMap[m]);
+    preparse: function (number: any): string {
+      // replace only  khmer number from symbols to numbers using regex
+      return number.replace(/[១២៣៤៥៦៧៨៩០]/g, (match: any) => {
+        return numbers[symbols.indexOf(match)];
+      });
     },
-    postformat: function (number: any) {
-      return number.toString().replace(/\d/g, (m) => symbolMap[m]);
+    postformat: function (number: any): string {
+      // replace only numbers to khmer number from numbers to symbols using regex
+      return number.replace(/[1234567890]/g, (match: any) => {
+        return symbols[numbers.indexOf(Number(match))];
+      });
     },
   };
 };
 
 export const constant = {
-  lunarMonths,
   solarMonths,
   animalYears,
   eraYears,

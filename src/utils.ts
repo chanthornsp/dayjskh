@@ -8,7 +8,7 @@ const formatKhmerDate = (
   KhmerLunar: KhmercalType,
   date: dayjs.Dayjs,
   format?: string | string | null | undefined,
-): string | undefined => {
+): string => {
   if (format === null || format === undefined || format === "") {
     // Default date format
     const dayOfWeek = date.day();
@@ -70,7 +70,10 @@ const formatKhmerDate = (
       ),
     );
   }
+  return "";
 };
+
 export const utils = {
   formatKhmerDate: formatKhmerDate,
+  khmerNewYearDate: khmerNewYear.getKhmerNewYear,
 };

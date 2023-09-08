@@ -3,7 +3,7 @@
 import dayjs from "dayjs";
 import type { Dayjs } from "dayjs";
 
-export function lunar(date = dayjs()) {
+export function lunar(date: string | Dayjs = dayjs()) {
   const aharakoune = (y: number): number => (y * 292207 + 373) % 800;
   const harakoune = (y: number): number =>
     Math.floor((y * 292207 + 373) / 800) + 1;
@@ -42,12 +42,12 @@ export function lunar(date = dayjs()) {
     );
   }
 
-  function langSak(y) {
+  function langSak(y: number) {
     const i = sakDay(y);
     return { month: 3 + Number(i >= 6 && i <= 29), day: i };
   }
 
-  function sakDay(y) {
+  function sakDay(y: number) {
     const bo = bodethey(y);
     const bl0 = jaisLeap(y - 1);
     if (!bl0 || (bl0 && !isProtetinLeap(y - 1))) {
@@ -57,13 +57,13 @@ export function lunar(date = dayjs()) {
     return bo + 1;
   }
 
-  function greatLeap(y) {
+  function greatLeap(y: number): boolean {
     let value = isProtetinLeap(y);
     if (jaisLeap(y) && value) value = false;
     return value;
   }
 
-  function isProtetinLeap(y) {
+  function isProtetinLeap(y: number): boolean {
     const avomane0 = avomane(y);
     const avomane1 = avomane(y + 1);
     const normal = regularLeap(y);
@@ -78,18 +78,22 @@ export function lunar(date = dayjs()) {
     return value;
   }
 
-  function diffDays(end) {
-    return Math.abs(Math.round((end - 286596e5) / (1000 * 60 * 60 * 24)));
+  function diffDays(end: Dayjs): number {
+    const result = Math.abs(
+      Math.round((end.valueOf() - 286596e5) / (1000 * 60 * 60 * 24)),
+    );
+    return result;
   }
 
-  function monthsOfYear(year) {
+  function monthsOfYear(year: number): number[] {
     const ath = jaisLeap(year);
     const great = greatLeap(year);
     const items = [];
     for (let i = 0; i < 12 + Number(ath); i++) {
       let j = i;
       if (ath && j >= 8) j--;
-      items.push(29 + Number(j % 2 != 0) + ((j == 6 && great) | 0));
+      // items.push(29 + Number(j % 2 != 0) + ((j === 6 && great) | 0));
+      items.push(29 + Number(j % 2 != 0) + (j === 6 && great ? 1 : 0));
     }
     return items;
   }

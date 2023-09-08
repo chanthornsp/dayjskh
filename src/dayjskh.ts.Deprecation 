@@ -307,6 +307,7 @@ export default function dayjskh(date?: dayjs.Dayjs | string) {
         date = date.add(1, "day");
       }
     }
+    return date;
   }
 
   function datesOfKhmerNewYear(

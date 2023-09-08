@@ -1,5 +1,4 @@
 import dayjs from "dayjs";
-import { constant } from "./constant";
 
 // calculate Khmer New Year
 // based on: https://www.dahlina.com/education/khmer_new_year_time.html?fbclid=IwAR0Eq6US-F0LfplMjKzmiRn7rvPgi31i74Wpv4mNhU034mzdyj-3hYrCA8w
@@ -94,10 +93,7 @@ export default function learnSak(jsYear: number = dayjs().year()) {
     }
     return {
       day: bodithey >= 6 ? bodithey - 1 : bodithey,
-      month:
-        bodithey >= 6
-          ? constant.lunarMonths["ចេត្រ"]
-          : constant.lunarMonths["ពិសាខ"],
+      month: bodithey >= 6 ? 4 : 5,
     };
   };
 

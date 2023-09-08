@@ -27,8 +27,8 @@
       import toKhmerDate from "./src/main.ts";
       dayjs.extend(toKhmerDate);
       const date = dayjs();
-      document.querySelector("h1").innerHTML = date.toKhmerDate();
-      document.querySelector("h1#beta").innerHTML = date.khBeta();
+      document.querySelector("h1").innerHTML = date.toKhmerDate("dN m b");
+      // document.querySelector("h1#beta").innerHTML = date.toKhmerDate();
       document.querySelector("h2").innerHTML = date
         .year(2024)
         .khNewYear()
@@ -37,7 +37,7 @@
       let date2 = dayjs("2024-01-01");
       for (let i = 0; i < 365; i++) {
         const li = document.createElement("li");
-        li.innerHTML = `${date2.add(i, "day").khBeta("")} - ${date2
+        li.innerHTML = `${date2.add(i, "day").toKhmerDate("")} - ${date2
           .add(i, "day")
           .format("DD/MM/YYYY")}`;
         document.querySelector("ul").appendChild(li);

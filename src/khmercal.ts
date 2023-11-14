@@ -142,7 +142,7 @@ export function lunar(date: string | Dayjs = dayjs()) {
     "ស្រាពណ៍",
     "ភទ្របទ",
     "អស្សុជ",
-    "កក្ដិក",
+    "កត្តិក",
   ].filter((_, i) => {
     if (lengthOfYear.length == 12) return i != 8 && i != 9;
     else return i != 7;

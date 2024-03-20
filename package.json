@@ -1,6 +1,6 @@
 {
   "name": "dayjskh",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "type": "module",
   "description": "Khmer Lunar date Plugin for Day.js",
   "module": "src/main.ts",

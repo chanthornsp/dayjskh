@@ -1,7 +1,8 @@
 {
   "name": "dayjskh",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "type": "module",
+  "types": "./types/index.d.ts",
   "description": "Khmer Lunar date Plugin for Day.js",
   "module": "src/main.ts",
   "scripts": {
@@ -16,10 +17,10 @@
   "author": "chanthorn",
   "license": "MIT",
   "devDependencies": {
-    "@types/node": "^20.11.24",
+    "@types/node": "^20.12.7",
     "prettier": "3.2.5",
-    "typescript": "^5.3.3",
-    "vite": "^5.1.5"
+    "typescript": "^5.4.5",
+    "vite": "^5.2.10"
   },
   "dependencies": {
     "dayjs": "^1.11.10"

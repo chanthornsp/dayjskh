@@ -1,4 +1,5 @@
 // add type to support dayjs
+/// <reference types="dayjskh" />
 import type { Dayjs, PluginFunc } from "dayjs/index";
 
 declare const plugin: PluginFunc;

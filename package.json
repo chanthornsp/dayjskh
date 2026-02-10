@@ -2,13 +2,26 @@
   "name": "dayjskh",
   "version": "0.2.0",
   "type": "module",
-  "types": "./types/index.d.ts",
   "description": "Khmer Lunar date Plugin for Day.js",
-  "module": "src/main.ts",
+  "main": "./dist/dayjskh.umd.js",
+  "module": "./dist/dayjskh.es.js",
+  "types": "./types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./types/index.d.ts",
+      "import": "./dist/dayjskh.es.js",
+      "require": "./dist/dayjskh.umd.js"
+    }
+  },
+  "files": [
+    "dist",
+    "types"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "tsc -p tsconfig.json && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "prepublishOnly": "npm run build"
   },
   "repository": {
     "type": "git",

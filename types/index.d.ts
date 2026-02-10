@@ -3,7 +3,7 @@
 import type { Dayjs, PluginFunc } from "dayjs/index";
 
 declare const plugin: PluginFunc;
-export = plugin;
+export default plugin;
 declare namespace plugin {
   export interface toKhmerDate {
     toKhmerDate(format?: string): string;

@@ -16,6 +16,8 @@ const eraYears: { [key: string]: number } = {};
 const moonStatus: { [key: string]: number } = {};
 "កើត_រោច".split("_").forEach((status, index) => (moonStatus[status] = index));
 
+// Khmer New Year dates - format: DD-MM-YYYY HH:mm
+// Data sourced from momentkh and verified historical records
 const khNewYear: { [key: string]: string } = {
   "1879": "12-04-1879 11:36",
   "1897": "13-04-1897 02:00",
@@ -24,6 +26,28 @@ const khNewYear: { [key: string]: string } = {
   "2013": "14-04-2013 02:12",
   "2014": "14-04-2014 08:07",
   "2015": "14-04-2015 14:02",
+  "2016": "14-04-2016 07:53",
+  "2017": "14-04-2017 13:48",
+  "2018": "14-04-2018 19:43",
+  "2019": "14-04-2019 01:38",
+  "2020": "14-04-2020 07:33",
+  "2021": "14-04-2021 13:28",
+  "2022": "14-04-2022 19:23",
+  "2023": "14-04-2023 01:18",
+  "2024": "13-04-2024 22:17",
+  "2025": "14-04-2025 10:04",
+  "2026": "14-04-2026 10:48",
+  "2027": "14-04-2027 16:43",
+  "2028": "13-04-2028 23:12",
+  "2029": "14-04-2029 10:33",
+  "2030": "14-04-2030 16:28",
+};
+
+// Number of New Year days override for years where official declaration differs from astronomical calculation
+// Most years are 3 days, leap years (Gregorian) typically have 4 days astronomically
+// But official declarations may differ - this overrides the calculation when needed
+const khNewYearDays: { [key: string]: number } = {
+  "2016": 3, // Official declaration was 3 days despite astronomical 4
 };
 
 const kh = () => {
@@ -76,5 +100,6 @@ export const constant = {
   eraYears,
   moonStatus,
   khNewYear,
+  khNewYearDays,
   kh: kh(),
 };

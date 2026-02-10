@@ -3,52 +3,519 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>DayjsKh</title>
+    <title>Khmer Calendar & New Year Demo - DayjsKh</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Serif+Khmer:wght@100..900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          "Noto Serif Khmer", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: #6c7ce0;
+        min-height: 100vh;
+        padding: 20px;
+        color: #333;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+
+      .header {
+        background: #ff7675;
+        padding: 30px;
+        text-align: center;
+        color: white;
+      }
+
+      .header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .header p {
+        font-size: 1.2rem;
+        opacity: 0.9;
+      }
+
+      .content {
+        padding: 30px;
+      }
+
+      .control-panel {
+        background: #f8f9fa;
+        padding: 25px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        border: 2px solid #e9ecef;
+      }
+
+      .year-selector {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .year-selector label {
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: #495057;
+      }
+
+      .year-input {
+        padding: 12px 15px;
+        border: 2px solid #dee2e6;
+        border-radius: 8px;
+        font-size: 1rem;
+        width: 120px;
+        text-align: center;
+      }
+
+      .year-input:focus {
+        outline: none;
+        border-color: #6c7ce0;
+        box-shadow: 0 0 0 3px rgba(108, 124, 224, 0.1);
+      }
+
+      .btn {
+        padding: 12px 25px;
+        background: #6c7ce0;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+        background: #5a67d8;
+        box-shadow: 0 5px 15px rgba(108, 124, 224, 0.4);
+      }
+
+      .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 25px;
+        margin-bottom: 30px;
+      }
+
+      .info-card {
+        background: white;
+        padding: 25px;
+        border-radius: 15px;
+        border: 1px solid #e9ecef;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        transition: transform 0.3s ease;
+      }
+
+      .info-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      }
+
+      .info-card h3 {
+        color: #495057;
+        margin-bottom: 15px;
+        font-size: 1.3rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .icon {
+        width: 24px;
+        height: 24px;
+        display: inline-block;
+      }
+
+      .khmer-text {
+        font-family: "Noto Serif Khmer", serif;
+        font-size: 1.8rem;
+        color: #6c7ce0;
+        font-weight: 600;
+        line-height: 1.4;
+        margin: 10px 0;
+        text-align: center;
+        padding: 15px;
+        background: #f8f9ff;
+        border-radius: 8px;
+        border-left: 4px solid #6c7ce0;
+      }
+
+      .new-year-info {
+        background: #fd79a8;
+        color: white;
+      }
+
+      .new-year-info h3 {
+        color: white;
+      }
+
+      .celebration-days {
+        margin-top: 15px;
+      }
+
+      .day-item {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 10px;
+        margin: 8px 0;
+        border-radius: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .current-date {
+        background: #00b894;
+        color: white;
+      }
+
+      .current-date h3 {
+        color: white;
+      }
+
+      .format-examples {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+      }
+
+      .format-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px solid #ffeaa7;
+      }
+
+      .format-item:last-child {
+        border-bottom: none;
+      }
+
+      .format-code {
+        font-family: "Courier New", monospace;
+        background: #f8f9fa;
+        padding: 3px 6px;
+        border-radius: 4px;
+        font-size: 0.9rem;
+      }
+
+      .loading {
+        text-align: center;
+        padding: 20px;
+        color: #6c757d;
+      }
+
+      .error {
+        background: #f8d7da;
+        color: #721c24;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 10px 0;
+        border: 1px solid #f5c6cb;
+      }
+
+      /* Responsive design */
+      @media (max-width: 768px) {
+        .header h1 {
+          font-size: 2rem;
+        }
+
+        .year-selector {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .info-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .khmer-text {
+          font-size: 1.4rem;
+        }
+      }
+    </style>
   </head>
   <body>
-    <div id="app">
-      <h1></h1>
-      <h1 id="beta"></h1>
-      <h2></h2>
+    <div class="container">
+      <div class="header">
+        <h1>🏛️ Khmer Calendar & New Year Demo</h1>
+        <p>
+          Explore Khmer lunar calendar and New Year celebrations with DayjsKh
+        </p>
+      </div>
 
-      <div
-        style="
-          display: flex;
-          flex-direction: row;
-          /* justify-content: space-between; */
-        "
-      >
-        <ul></ul>
-        <ul id="ul2"></ul>
+      <div class="content">
+        <!-- Control Panel -->
+        <div class="control-panel">
+          <div class="year-selector">
+            <label for="yearInput">📅 Select Year:</label>
+            <input
+              type="number"
+              id="yearInput"
+              class="year-input"
+              min="1900"
+              max="2100"
+              value="2026"
+            />
+            <button class="btn" onclick="updateDisplay()">
+              Update Display
+            </button>
+            <button class="btn" onclick="setCurrentYear()">Current Year</button>
+          </div>
+        </div>
+
+        <!-- Information Grid -->
+        <div class="info-grid">
+          <!-- Current Date Card -->
+          <div class="info-card current-date">
+            <h3>
+              <span class="icon">🌟</span>
+              Today's Date
+            </h3>
+            <div class="khmer-text" id="currentKhmerDate">Loading...</div>
+            <div
+              id="currentEnglishDate"
+              style="text-align: center; margin-top: 10px; opacity: 0.8"
+            ></div>
+          </div>
+
+          <!-- Khmer New Year Card -->
+          <div class="info-card new-year-info">
+            <h3>
+              <span class="icon">🎉</span>
+              Khmer New Year <span id="selectedYearDisplay">2026</span>
+            </h3>
+            <div id="newYearDate" class="khmer-text">Loading...</div>
+            <div class="celebration-days" id="celebrationDays">
+              <!-- Will be populated by JavaScript -->
+            </div>
+          </div>
+
+          <!-- Format Examples Card -->
+          <div class="info-card format-examples">
+            <h3>
+              <span class="icon">📝</span>
+              Format Examples
+            </h3>
+            <div id="formatExamples">
+              <!-- Will be populated by JavaScript -->
+            </div>
+          </div>
+
+          <!-- Calendar Information Card -->
+          <div class="info-card">
+            <h3>
+              <span class="icon">🌙</span>
+              Calendar Information
+            </h3>
+            <div id="calendarInfo">
+              <!-- Will be populated by JavaScript -->
+            </div>
+          </div>
+        </div>
       </div>
     </div>
+
     <script type="module">
       import dayjs from "dayjs";
       import toKhmerDate from "./src/main.ts";
-      dayjs.extend(toKhmerDate);
-      const date = dayjs();
-      document.querySelector("h1").innerHTML = date.toKhmerDate("dN m b");
-      // document.querySelector("h1#beta").innerHTML = date.toKhmerDate();
-      document.querySelector("h2").innerHTML = date
-        .year(2024)
-        .khNewYear()
-        .date.format();
 
-      let date2 = dayjs("2024-01-01");
-      for (let i = 0; i < 365; i++) {
-        const li = document.createElement("li");
-        li.innerHTML = `${date2.add(i, "day").toKhmerDate("")} - ${date2
-          .add(i, "day")
-          .format("DD/MM/YYYY")}`;
-        document.querySelector("ul").appendChild(li);
+      dayjs.extend(toKhmerDate);
+
+      let currentSelectedYear = 2026;
+
+      // Initialize the demo
+      function init() {
+        const now = dayjs();
+        document.getElementById("yearInput").value = now.year();
+        currentSelectedYear = now.year();
+        updateDisplay();
       }
-      for (let i = 0; i < 365; i++) {
-        const li = document.createElement("li");
-        li.innerHTML = `${date2.add(i, "day").toKhmerDate("")} - ${date2
-          .add(i, "day")
-          .format("DD/MM/YYYY")}`;
-        document.querySelector("ul#ul2").appendChild(li);
+
+      // Update all displays based on selected year
+      function updateDisplay() {
+        const yearInput = document.getElementById("yearInput");
+        const year = parseInt(yearInput.value) || new Date().getFullYear();
+        currentSelectedYear = year;
+
+        document.getElementById("selectedYearDisplay").textContent = year;
+
+        try {
+          updateCurrentDate();
+          updateNewYearInfo(year);
+          updateFormatExamples();
+          updateCalendarInfo(year);
+        } catch (error) {
+          console.error("Error updating display:", error);
+          showError("Error loading calendar data. Please try again.");
+        }
       }
+
+      // Update current date display
+      function updateCurrentDate() {
+        const now = dayjs();
+        const khmerDate = now.toKhmerDate();
+        const englishDate = now.format("dddd, MMMM D, YYYY");
+
+        document.getElementById("currentKhmerDate").textContent = khmerDate;
+        document.getElementById("currentEnglishDate").textContent = englishDate;
+      }
+
+      // Update Khmer New Year information
+      function updateNewYearInfo(year) {
+        const newYearData = dayjs().year(year).khNewYear();
+        const newYearDate = newYearData.date;
+
+        // Format the New Year date in Khmer
+        const khmerNewYearDate = newYearDate.toKhmerDate("W d N m c");
+        document.getElementById("newYearDate").textContent = khmerNewYearDate;
+
+        // Display celebration days
+        const celebrationDaysContainer =
+          document.getElementById("celebrationDays");
+        celebrationDaysContainer.innerHTML = "";
+
+        newYearData.dates.forEach((dayInfo, index) => {
+          const dayElement = document.createElement("div");
+          dayElement.className = "day-item";
+          dayElement.innerHTML = `
+            <span>Day ${index + 1}: ${dayInfo.dayName}</span>
+            <span>${dayInfo.date.format("MMM D, YYYY")}</span>
+          `;
+          celebrationDaysContainer.appendChild(dayElement);
+        });
+      }
+
+      // Update format examples
+      function updateFormatExamples() {
+        const sampleDate = dayjs().year(currentSelectedYear).month(3).date(15); // April 15th of selected year
+        const formats = [
+          { code: "toKhmerDate()", description: "Full format" },
+          { code: 'toKhmerDate("dN m b")', description: "Day + Month + Year" },
+          {
+            code: 'toKhmerDate("W d N m")',
+            description: "Weekday + Day + Month",
+          },
+          {
+            code: 'toKhmerDate("a e b")',
+            description: "Animal + Era + Buddhist Year",
+          },
+          { code: 'toKhmerDate("m")', description: "Month only" },
+          { code: 'toKhmerDate("W")', description: "Weekday only" },
+        ];
+
+        const container = document.getElementById("formatExamples");
+        container.innerHTML = "";
+
+        formats.forEach((format) => {
+          const formatElement = document.createElement("div");
+          formatElement.className = "format-item";
+
+          let result;
+          if (format.code === "toKhmerDate()") {
+            result = sampleDate.toKhmerDate();
+          } else {
+            const formatString = format.code.match(/toKhmerDate\("(.*)"\)/)[1];
+            result = sampleDate.toKhmerDate(formatString);
+          }
+
+          formatElement.innerHTML = `
+            <span class="format-code">${format.code}</span>
+            <span>${result}</span>
+          `;
+          container.appendChild(formatElement);
+        });
+      }
+
+      // Update calendar information
+      function updateCalendarInfo(year) {
+        const sampleDate = dayjs().year(year).month(0).date(1); // January 1st of selected year
+        const newYearData = dayjs().year(year).khNewYear();
+
+        const info = [
+          { label: "Buddhist Era Year", value: sampleDate.toKhmerDate("b") },
+          { label: "Animal Year", value: sampleDate.toKhmerDate("a") },
+          { label: "Era Year", value: sampleDate.toKhmerDate("e") },
+          { label: "New Year Duration", value: `${newYearData.days} days` },
+          {
+            label: "New Year Start",
+            value: newYearData.date.format("MMMM D, YYYY"),
+          },
+          { label: "New Year Time", value: newYearData.date.format("h:mm A") },
+        ];
+
+        const container = document.getElementById("calendarInfo");
+        container.innerHTML = "";
+
+        info.forEach((item) => {
+          const infoElement = document.createElement("div");
+          infoElement.className = "format-item";
+          infoElement.innerHTML = `
+            <span><strong>${item.label}:</strong></span>
+            <span>${item.value}</span>
+          `;
+          container.appendChild(infoElement);
+        });
+      }
+
+      // Set current year
+      function setCurrentYear() {
+        const currentYear = new Date().getFullYear();
+        document.getElementById("yearInput").value = currentYear;
+        updateDisplay();
+      }
+
+      // Show error message
+      function showError(message) {
+        const errorDiv = document.createElement("div");
+        errorDiv.className = "error";
+        errorDiv.textContent = message;
+        document.querySelector(".content").prepend(errorDiv);
+
+        setTimeout(() => {
+          errorDiv.remove();
+        }, 5000);
+      }
+
+      // Event listeners
+      document.getElementById("yearInput").addEventListener("input", (e) => {
+        const year = parseInt(e.target.value);
+        if (year && year >= 1900 && year <= 2100) {
+          updateDisplay();
+        }
+      });
+
+      document.getElementById("yearInput").addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+          updateDisplay();
+        }
+      });
+
+      // Make functions global so they can be called from HTML
+      window.updateDisplay = updateDisplay;
+      window.setCurrentYear = setCurrentYear;
+
+      // Initialize when page loads
+      init();
     </script>
   </body>
 </html>

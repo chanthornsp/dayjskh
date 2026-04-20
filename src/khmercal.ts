@@ -155,7 +155,7 @@ export function lunar(date: string | Dayjs = dayjs()) {
     "ថោះ",
     "រោង",
     "ម្សាញ់",
-    "មមីរ",
+    "មមី",
     "មមែ",
     "វក",
     "រកា",

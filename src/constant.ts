@@ -4,7 +4,7 @@ const solarMonths: { [key: string]: number } = {};
   .forEach((month, index) => (solarMonths[month] = index));
 
 const animalYears: { [key: string]: number } = {};
-"ជូត_ឆ្លូវ_ខាល_ថោះ_រោង_ម្សាញ់_មមីរ_មមែ_វក_រកា_ច_កុរ"
+"ជូត_ឆ្លូវ_ខាល_ថោះ_រោង_ម្សាញ់_មមី_មមែ_វក_រកា_ច_កុរ"
   .split("_")
   .forEach((year, index) => (animalYears[year] = index));
 
